@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Label extends Model
+class Status extends Model
 {
     protected $fillable = ['name'];
 
     public function tickets()
     {
-        return $this->belongsToMany(Ticket::class, 'ticket_label', 'label_id', 'ticket_id');
+        return $this->hasMany(Ticket::class, 'status_id');
     }
 }
