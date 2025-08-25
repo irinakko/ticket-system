@@ -16,9 +16,10 @@ class Ticket extends Model
         'user_id',
     ];
 
-    protected $casts = [
-        'priority' => PriorityLevel::class,
-    ];
+    public function getPriorityLevelEnum(): ?PriorityLevel
+    {
+        return $this->priority ? $this->priority->getLevelEnum() : null;
+    }
 
     public function user(): BelongsTo
     {

@@ -37,16 +37,31 @@
     </div>
 
     {{-- Category --}}
-    <div class="mb-4">
-        <label for="category_id" class="block text-sm font-medium text-gray-700">Category:</label>
-        <select name="category_id" id="category_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-            @foreach ($categories as $category)
-                <option value="{{ $category->id }}" {{ $ticket->category_id == $category->id ? 'selected' : '' }}>
-                    {{ $category->name }}
-                </option>
-            @endforeach
-        </select>
-    </div>
+   <div class="mb-4">
+    <label for="category_ids" class="block text-sm font-medium text-gray-700">Categories:</label>
+    <select name="category_ids[]" id="category_ids" multiple
+        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+        @foreach ($categories as $category)
+            <option value="{{ $category->id }}"
+                {{ $ticket->categories->contains($category->id) ? 'selected' : '' }}>
+                {{ $category->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
+      {{-- Label --}}
+ <div class="mb-4">
+    <label for="label_ids" class="block text-sm font-medium text-gray-700">Labels:</label>
+    <select name="label_ids[]" id="label_ids" multiple
+        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+        @foreach ($labels as $label)
+            <option value="{{ $label->id }}"
+                {{ $ticket->labels->contains($label->id) ? 'selected' : '' }}>
+                {{ $label->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
 
     {{-- Priority --}}
     <div class="mb-4">
