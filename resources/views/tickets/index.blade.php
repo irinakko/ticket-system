@@ -13,25 +13,60 @@
                      <table class="min-w-full bg-white border border-gray-200 shadow-md rounded-lg overflow-hidden">
     <thead class="bg-gray-100 text-gray-700 uppercase text-sm font-semibold">
         <tr>
-            <th class="px-6 py-3 text-left">Name</th>
+            <th class="px-6 py-3 text-left">Title</th>
+            <th class="px-6 py-3 text-left">Label</th>
+            <th class="px-6 py-3 text-left">Priority</th>
+            <th class="px-6 py-3 text-left">Category</th>
+            <th class="px-6 py-3 text-left">Status</th>
+            <th class="px-6 py-3 text-left">Assignee</th>
             <th class="px-6 py-3 text-right">Actions</th>
         </tr>
     </thead>
     <tbody class="text-gray-700 divide-y divide-gray-200">
         @foreach($tickets as $ticket)
-            <tr class="hover:bg-gray-50 transition duration-150">
-                <td class="px-6 py-4">{{ $ticket->title }}</td>
-                <td class="px-6 py-4 text-right space-x-2">
-                    <a href="{{ route('tickets.edit', $ticket) }}" class="text-indigo-600 hover:text-indigo-900 font-medium">Edit</a>
+    <tr class="hover:bg-gray-50 transition duration-150">
+        <td class="px-6 py-4">{{ $ticket->title }}</td>
 
-                    <form method="POST" action="{{ route('tickets.destroy', $ticket) }}" class="inline-block" onsubmit="return confirm('Are you sure?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
+        <td class="px-6 py-4">
+            @if ($ticket->labels->isNotEmpty())
+                <ul>
+                    @foreach ($ticket->labels as $label)
+                        <li>{{ $label->name }}</li>
+                    @endforeach
+                </ul>
+            @else
+                <span>No labels assigned</span>
+            @endif
+        </td>
+        <td class="px-6 py-4">
+        {{ $ticket->priority?->name }}
+        </td>
+        <td class="px-6 py-4">
+            @if ($ticket->categories->isNotEmpty())
+                <ul>
+                    @foreach ($ticket->categories as $category)
+                        <li>{{ $category->name }}</li>
+                    @endforeach
+                </ul>
+            @else
+                <span>No categories assigned</span>
+            @endif
+        </td>
+
+        <td class="px-6 py-4">{{ $ticket->status->name }}</td>
+        <td class="px-6 py-4">{{ $ticket->user->name ?? 'Unassigned' }}</td>
+
+        <td class="px-6 py-4 text-right space-x-2">
+            <a href="{{ route('tickets.edit', $ticket) }}" class="text-indigo-600 hover:text-indigo-900 font-medium">Edit</a>
+
+            <form method="POST" action="{{ route('tickets.destroy', $ticket) }}" class="inline-block" onsubmit="return confirm('Are you sure?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Delete</button>
+            </form>
+        </td>
+    </tr>
+@endforeach
     </tbody>
 </table>
 
