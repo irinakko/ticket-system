@@ -9,7 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tickets', function (Blueprint $table) {
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+
+            $table->dropForeign(['user_id']);
+
+            $table->unsignedBigInteger('user_id')->nullable()->change();
+
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->onDelete('set null');
         });
     }
 
@@ -17,7 +24,12 @@ return new class extends Migration
     {
         Schema::table('tickets', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
-            $table->dropColumn('user_id');
+
+            $table->foreignId('user_id')->nullable(false)->change();
+
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->onDelete('restrict');
         });
     }
 };
