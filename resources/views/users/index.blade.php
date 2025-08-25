@@ -10,17 +10,24 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <a href="{{ route('users.create') }}" class="mb-4 inline-block">Add new user</a>
-                     <table class="min-w-full bg-white border border-gray-200 shadow-md rounded-lg overflow-hidden">
+                 <table class="min-w-full bg-white border border-gray-200 shadow-md rounded-lg overflow-hidden">
     <thead class="bg-gray-100 text-gray-700 uppercase text-sm font-semibold">
         <tr>
             <th class="px-6 py-3 text-left">Name</th>
+            <th class="px-6 py-3 text-left">Email</th>
             <th class="px-6 py-3 text-right">Actions</th>
         </tr>
     </thead>
     <tbody class="text-gray-700 divide-y divide-gray-200">
         @foreach($users as $user)
             <tr class="hover:bg-gray-50 transition duration-150">
+                <!-- Name -->
                 <td class="px-6 py-4">{{ $user->name }}</td>
+
+                <!-- Email (not editable) -->
+                <td class="px-6 py-4">{{ $user->email }}</td>
+
+                <!-- Actions: Edit + Delete -->
                 <td class="px-6 py-4 text-right space-x-2">
                     <a href="{{ route('users.edit', $user) }}" class="text-indigo-600 hover:text-indigo-900 font-medium">Edit</a>
 
@@ -34,6 +41,7 @@
         @endforeach
     </tbody>
 </table>
+
 
                 </div>
             </div>
