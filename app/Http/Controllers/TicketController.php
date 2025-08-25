@@ -59,9 +59,12 @@ class TicketController extends Controller
     public function update(Request $request, Ticket $ticket)
     {
         $ticket->update([
-            'name' => $request->input('name'),
+            'title' => $request->input('name'),
+            'description' => $request->input('description'),
+            'priority_id' => $request->input('priority_id'),
             'status_id' => $request->input('status_id'),
             'category_id' => $request->input('category_id'),
+            'user_id' => $request->input('assignee_id'),
         ]);
 
         return redirect()->route('tickets.index')->with('success', 'Ticket updated successfully.');
