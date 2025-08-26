@@ -21,19 +21,13 @@ class TicketController extends Controller
 
     public function create(Request $request)
     {
-        $ticket = Ticket::create([
-            'title' => $request->input('name'),
-            'description' => $request->input('description'),
-            'priority_id' => $request->input('priority_id'),
-            'status_id' => $request->input('status_id'),
-            'user_id' => $request->input('assignee_id'),
+        return view('tickets.create', [
+            'categories' => Category::all(),
+            'priorities' => Priority::all(),
+            'statuses' => Status::all(),
+            'labels' => Label::all(),
+            'users' => User::all(),
         ]);
-
-        // Sync many-to-many relations
-        $ticket->labels()->sync($request->input('label_ids', []));
-        $ticket->categories()->sync($request->input('category_ids', []));
-
-        return redirect()->route('tickets.index')->with('success', 'Ticket created successfully.');
     }
 
     public function store(Request $request)
