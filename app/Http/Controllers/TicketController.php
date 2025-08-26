@@ -8,13 +8,21 @@ use App\Models\Priority;
 use App\Models\Status;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Role as RoleEnum;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TicketController extends Controller
 {
     public function index()
     {
-        $tickets = Ticket::with(['status', 'labels', 'categories', 'user', 'priority'])->get();
+        /** @var User $user */
+        $user = Auth::user();
+        $ticketsQuery = Ticket::with(['status', 'labels', 'categories', 'user', 'priority']);
+
+        $tickets = $user->hasRole(RoleEnum::Admin->value)
+            ? $ticketsQuery->get()
+            : $ticketsQuery->where('user_id', $user->id)->get();
 
         return view('tickets.index', compact('tickets'));
     }
@@ -52,6 +60,12 @@ class TicketController extends Controller
 
     public function edit(Ticket $ticket)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (! $user->hasRole(RoleEnum::Admin->value)) {
+            abort(403, 'Unauthorized');
+        }
         $statuses = Status::all();
         $labels = Label::all();
         $categories = Category::all();
@@ -63,6 +77,12 @@ class TicketController extends Controller
 
     public function update(Request $request, Ticket $ticket)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (! $user->hasRole(RoleEnum::Admin->value)) {
+            abort(403, 'Unauthorized');
+        }
         $ticket->update([
             'title' => $request->input('name'),
             'description' => $request->input('description'),
@@ -79,9 +99,15 @@ class TicketController extends Controller
     }
 
     public function destroy(Ticket $ticket)
-    {
-        $ticket->delete();
+    {  /** @var User $user */
+        $user = Auth::user();
+        if ($user->hasRole(RoleEnum::Admin->value)) {
+            $ticket->delete();
 
-        return redirect()->route('tickets.index')->with('success', 'Ticket deleted successfully.');
+            return redirect()->route('tickets.index')->with('success', 'Ticket deleted successfully.');
+        } else {
+            abort(403, 'Unauthorized');
+        }
+
     }
 }

@@ -10,9 +10,10 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <a href="{{ route('tickets.create') }}" class="mb-4 inline-block">Add new ticket</a>
+                    <a href="{{ route('tickets.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 mb-4">Add new ticket</a>
                      <table class="min-w-full bg-white border border-gray-200 shadow-md rounded-lg overflow-hidden">
     <thead class="bg-gray-100 text-gray-700 uppercase text-sm font-semibold">
+        
         <tr>
             <th class="px-6 py-3 text-left">Title</th>
             <th class="px-6 py-3 text-left">Label</th>

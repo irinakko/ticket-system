@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Role as RoleEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -49,5 +51,21 @@ class User extends Authenticatable
     public function tickets()
     {
         return $this->hasMany(Ticket::class, 'user_id');
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function hasRole(string $role): bool
+    {
+        if (! $this->role) {
+            return false;
+        }
+
+        $enum = RoleEnum::tryFrom($role);
+
+        return $enum !== null && $this->role->name === $enum->value;
     }
 }
