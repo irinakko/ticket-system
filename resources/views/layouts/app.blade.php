@@ -30,6 +30,10 @@
             <!-- Page Content -->
             <main>
                 {{ $slot }}
+                <script src="https://unpkg.com/lucide@latest"></script>
+                <script>
+                    lucide.createIcons();
+                </script>
             </main>
         </div>
     </body>

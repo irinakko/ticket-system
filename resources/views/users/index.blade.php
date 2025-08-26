@@ -1,7 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Users') }}
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center space-x-2">
+       <x-icon name="users-round" class="w-5 h-5 text-blue-500" />
+        <span>{{ __('Users') }}</span>
         </h2>
     </x-slot>
 
@@ -21,13 +22,8 @@
     <tbody class="text-gray-700 divide-y divide-gray-200">
         @foreach($users as $user)
             <tr class="hover:bg-gray-50 transition duration-150">
-                <!-- Name -->
                 <td class="px-6 py-4">{{ $user->name }}</td>
-
-                <!-- Email (not editable) -->
                 <td class="px-6 py-4">{{ $user->email }}</td>
-
-                <!-- Actions: Edit + Delete -->
                 <td class="px-6 py-4 text-right space-x-2">
                     <a href="{{ route('users.edit', $user) }}" class="text-indigo-600 hover:text-indigo-900 font-medium">Edit</a>
 

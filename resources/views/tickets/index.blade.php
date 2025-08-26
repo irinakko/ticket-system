@@ -1,7 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Tickets') }}
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center space-x-2">
+       <x-icon name="tags" class="w-5 h-5 text-blue-500" />
+        <span>{{ __('Tickets') }}</span>
         </h2>
     </x-slot>
 
@@ -38,9 +39,21 @@
                 <span>No labels assigned</span>
             @endif
         </td>
-        <td class="px-6 py-4">
-        {{ $ticket->priority?->name }}
-        </td>
+  <td class="px-6 py-4">
+    @php
+    $priorityEnum = $ticket->getPriorityLevelEnum();
+@endphp
+    @if ($priorityEnum)
+        <span
+            class="inline-block px-3 py-1 rounded-full text-sm font-medium text-black"
+            style="background-color: {{ $priorityEnum->color() }};"
+        >
+            {{ ucfirst($priorityEnum->value) }}
+        </span>
+    @else
+        <span class="text-gray-500">Unassigned</span>
+    @endif
+</td>
         <td class="px-6 py-4">
             @if ($ticket->categories->isNotEmpty())
                 <ul>

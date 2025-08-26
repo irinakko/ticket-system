@@ -24,15 +24,49 @@
                     <textarea name="description" id="description" rows="4" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"></textarea>
                 </div>
 
-                {{-- Category --}}
-                <div class="mb-4">
-                    <label for="category_id" class="block font-medium text-sm text-gray-700">Category:</label>
-                    <select name="category_id" id="category_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                  {{-- Category --}}
+   <div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700">Categories:</label>
+    <div class="flex flex-wrap gap-4">
+        @foreach ($categories as $category)
+            <div class="flex items-center space-x-2">
+                <input
+                    type="checkbox"
+                    name="category_ids[]"
+                    id="category_{{ $category->id }}"
+                    value="{{ $category->id }}"
+                    {{ isset($ticket) && $ticket->categories->contains($category->id) ? 'checked' : ''  }}
+                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                >
+                <label for="category_{{ $category->id }}" class="text-sm text-gray-700">
+                    {{ $category->name }}
+                </label>
+            </div>
+        @endforeach
+    </div>
+</div>
+      {{-- Label --}}
+
+<div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700">Labels:</label>
+    <div class="flex flex-wrap gap-4">
+        @foreach ($labels as $label)
+            <div class="flex items-center space-x-2">
+                <input
+                    type="checkbox"
+                    name="label_ids[]"
+                    id="label_{{ $label->id }}"
+                    value="{{ $label->id }}"
+                    {{ isset($ticket) && $ticket->labels->contains($label->id) ? 'checked' : '' }}
+                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                >
+                <label for="label_{{ $label->id }}" class="text-sm text-gray-700">
+                    {{ $label->name }}
+                </label>
+            </div>
+        @endforeach
+    </div>
+</div>
 
                 {{-- Priority --}}
                 <div class="mb-4">
