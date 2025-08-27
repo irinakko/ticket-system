@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
          <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center space-x-2">
-       <x-icon name="tags" class="w-5 h-5 text-blue-500" />
+       <x-icon name="tags" class="w-5 h-5" />
         <span>{{ __('Labels') }}</span>
         </h2>
     </x-slot>

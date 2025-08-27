@@ -53,9 +53,14 @@ class TicketController extends Controller
         return redirect()->route('tickets.index')->with('success', 'Ticket created successfully.');
     }
 
-    public function show(Ticket $ticket)
+    public function show($title)
     {
-        //
+        $title = str_replace('-', ' ', $title);
+        $ticket = Ticket::with(['comments.user', 'status', 'priority', 'user', 'labels', 'categories'])
+            ->where('title', $title)
+            ->firstOrFail();
+
+        return view('tickets.show', compact('ticket'));
     }
 
     public function edit(Ticket $ticket)

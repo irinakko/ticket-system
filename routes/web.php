@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LabelController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TicketController;
@@ -25,12 +26,14 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware([\App\Http\Middleware\HasRole::class.':admin,user,agent'])->group(function () {
         Route::resource('tickets', TicketController::class);
+        Route::get('/tickets/{title}', [TicketController::class, 'show'])->name('tickets.show');
+        Route::resource('comments', CommentController::class);
 
     });
-
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->middleware(['auth', 'verified'])->name('dashboard');
 });
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__.'/auth.php';
