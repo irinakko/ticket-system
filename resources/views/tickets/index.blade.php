@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center space-x-2">
-       <x-icon name="tags" class="w-5 h-5 text-blue-500" />
+       <x-icon name="tags" class="w-5 h-5" />
         <span>{{ __('Tickets') }}</span>
         </h2>
     </x-slot>
@@ -26,7 +26,11 @@
     </thead>
     <tbody class="text-gray-700 divide-y divide-gray-200">
         @foreach($tickets as $ticket)
-    <tr class="hover:bg-gray-50 transition duration-150">
+    <tr
+    tabindex="0"
+    class="hover:bg-gray-50 transition duration-150 cursor-pointer"
+    onclick="window.location='{{ route('tickets.show', str_replace(' ', '-', $ticket->title)) }}'"
+    onkeydown="if(event.key === 'Enter' || event.key === ' ') { window.location='{{ route('tickets.show', str_replace(' ', '-', $ticket->title)) }}'; event.preventDefault(); }">
         <td class="px-6 py-4">{{ $ticket->title }}</td>
 
         <td class="px-6 py-4">

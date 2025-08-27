@@ -45,4 +45,9 @@ class Ticket extends Model
     {
         return $this->belongsToMany(Label::class, 'label_ticket', 'ticket_id', 'label_id');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'ticket_id');
+    }
 }
