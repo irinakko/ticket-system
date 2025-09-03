@@ -26,8 +26,9 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware([\App\Http\Middleware\HasRole::class.':admin,user,agent'])->group(function () {
         Route::resource('tickets', TicketController::class);
-        Route::get('/tickets/{title}', [TicketController::class, 'show'])->name('tickets.show');
+        Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
         Route::resource('comments', CommentController::class);
+        Route::post('/comments/{comment}/respond', [CommentController::class, 'respond'])->name('comments.respond');
 
     });
 });

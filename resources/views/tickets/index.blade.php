@@ -29,8 +29,8 @@
     <tr
     tabindex="0"
     class="hover:bg-gray-50 transition duration-150 cursor-pointer"
-    onclick="window.location='{{ route('tickets.show', str_replace(' ', '-', $ticket->title)) }}'"
-    onkeydown="if(event.key === 'Enter' || event.key === ' ') { window.location='{{ route('tickets.show', str_replace(' ', '-', $ticket->title)) }}'; event.preventDefault(); }">
+    onclick="window.location='{{ route('tickets.show', \Illuminate\Support\Str::slug($ticket->title)) }}'"
+    onkeydown="if(event.key === 'Enter' || event.key === ' ') { window.location='{{ route('tickets.show', \Illuminate\Support\Str::slug($ticket->title)) }}'; event.preventDefault(); }">
         <td class="px-6 py-4">{{ $ticket->title }}</td>
 
         <td class="px-6 py-4">
