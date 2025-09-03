@@ -7,6 +7,7 @@ use App\Models\Label;
 use App\Models\Priority;
 use App\Models\Status;
 use App\Models\Ticket;
+use App\Models\TicketAttachment;
 use App\Models\User;
 use App\Role as RoleEnum;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class TicketController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-        $ticketsQuery = Ticket::with(['status', 'labels', 'categories', 'user', 'priority']);
+        $ticketsQuery = Ticket::with(['status', 'labels', 'categories', 'user', 'priority', 'attachments']);
 
         $tickets = $user->hasRole(RoleEnum::Admin->value)
             ? $ticketsQuery->get()
@@ -35,20 +36,42 @@ class TicketController extends Controller
             'statuses' => Status::all(),
             'labels' => Label::all(),
             'users' => User::all(),
+            'attachments' => TicketAttachment::all(),
         ]);
     }
 
     public function store(Request $request)
     {
-        $ticket = Ticket::create([
-            'title' => $request->input('name'),
-            'description' => $request->input('description'),
-            'priority_id' => $request->input('priority_id'),
-            'status_id' => $request->input('status_id'),
-            'user_id' => $request->input('assignee_id'),
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'priority_id' => 'required|exists:priorities,id',
+            'status_id' => 'required|exists:statuses,id',
+            'assignee_id' => 'required|exists:users,id',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'exists:categories,id',
+            'label_ids' => 'nullable|array',
+            'label_ids.*' => 'exists:labels,id',
+            'attachments.*' => 'nullable|file|max:10240',
         ]);
+        $ticket = Ticket::create(['title' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'priority_id' => $validated['priority_id'],
+            'status_id' => $validated['status_id'],
+            'user_id' => $validated['assignee_id'],
+        ]);
+
         $ticket->categories()->sync($request->input('category_ids', []));
         $ticket->labels()->sync($request->input('label_ids', []));
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('attachments', 'public');
+
+                $ticket->attachments()->create([
+                    'file_path' => $path,
+                ]);
+            }
+        }
 
         return redirect()->route('tickets.index')->with('success', 'Ticket created successfully.');
     }
@@ -56,7 +79,7 @@ class TicketController extends Controller
     public function show($title)
     {
         $title = str_replace('-', ' ', $title);
-        $ticket = Ticket::with(['comments.user', 'status', 'priority', 'user', 'labels', 'categories'])
+        $ticket = Ticket::with(['comments.user', 'status', 'priority', 'user', 'labels', 'categories', 'attachments'])
             ->where('title', $title)
             ->firstOrFail();
 
@@ -76,8 +99,9 @@ class TicketController extends Controller
         $categories = Category::all();
         $priorities = Priority::all();
         $users = User::all();
+        $attachments = TicketAttachment::all();
 
-        return view('tickets.edit', compact('ticket', 'statuses', 'categories', 'labels', 'priorities', 'users'));
+        return view('tickets.edit', compact('ticket', 'statuses', 'categories', 'labels', 'priorities', 'users', 'attachments'));
     }
 
     public function update(Request $request, Ticket $ticket)
@@ -96,9 +120,11 @@ class TicketController extends Controller
             'status_id' => $request->input('status_id'),
             'category_id' => $request->input('category_id'),
             'user_id' => $request->input('assignee_id'),
+            'attachment_id' => $request->input('attachment_id'),
         ]);
         $ticket->labels()->sync($request->input('label_ids', []));
         $ticket->categories()->sync($request->input('category_ids', []));
+        $ticket->attachments()->sync($request->input('attachment_ids', []));
 
         return redirect()->route('tickets.index')->with('success', 'Ticket updated successfully.');
     }

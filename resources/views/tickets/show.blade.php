@@ -13,6 +13,25 @@
             <div class="flex-1">
                 <p class="text-gray-700 mb-4">{{ $ticket->description ?? 'No description provided.' }}</p>
 
+                @if ($ticket->attachments->count())
+    <div class="mt-6">
+        <h4 class="font-semibold">Attachments</h4>
+        <ul class="list-disc list-inside text-blue-600">
+            @foreach ($ticket->attachments as $attachment)
+                <li>
+                    <a 
+                        href="{{ asset('storage/' . $attachment->file_path) }}" 
+                        download 
+                        class="hover:underline"
+                    >
+                        {{ basename($attachment->file_path) }}
+                    </a>
+                </li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
                 <a href="{{ route('tickets.index') }}"
                     class="inline-flex items-center px-4 py-2 bg-gray-800 border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 mt-4">
                     Back to Tickets
