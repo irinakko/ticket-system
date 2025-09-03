@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Role as RoleEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class CommentController extends Controller
 {
@@ -15,7 +16,7 @@ class CommentController extends Controller
     {
         $comments = Comment::all();
 
-        return view('comments.index', compact('comments'));
+        return view('tickets.show', compact('comments'));
     }
 
     public function create(Request $request)
@@ -32,10 +33,11 @@ class CommentController extends Controller
             'content' => $request->input('content'),
             'user_id' => Auth::id(),
             'ticket_id' => $request->input('ticket_id'),
+            'parent_id' => $request->input('parent_id'),
         ]);
         $ticket = Ticket::findOrFail($request->input('ticket_id'));
 
-        return redirect()->route('tickets.show', ['title' => $ticket->title])
+        return redirect()->route('tickets.show', ['ticket' => Str::slug($ticket->title)])
             ->with('success', 'Comment created successfully.');
     }
 
@@ -44,26 +46,45 @@ class CommentController extends Controller
         //
     }
 
-    public function edit(Comment $comment)
-    {
-        //
-    }
+    public function edit(Comment $comment) {}
 
     public function update(Request $request, Comment $comment)
     {
-        //
+        $comment->content = $request->input('content');
+        $comment->save();
+
+        return redirect()->route('tickets.show', Str::slug($comment->ticket->title))
+            ->with('success', 'Comment updated successfully.');
     }
 
     public function destroy(Comment $comment)
     {
-        /** @var User $user */
         $user = Auth::user();
-        if (! ($user->hasRole(RoleEnum::Admin->value) || $user->id === $comment->user_id)) {
+        $user = $user instanceof User ? $user : User::find($user->id);
+        if ($user->hasRole(RoleEnum::Admin->value) || $user->id === $comment->user_id) {
             $comment->delete();
 
-            return redirect()->route('tickets.show', $comment->ticket_id);
-        } else {
-            return redirect()->route('tickets.show', $comment->ticket_id)->with('error', 'You do not have permission to delete this comment.');
+            return redirect()->route('tickets.show', Str::slug($comment->ticket->title));
         }
+
+        return redirect()->route('tickets.show', Str::slug($comment->ticket->title))
+            ->with('error', 'You do not have permission to delete this comment.');
+    }
+
+    public function respond(Request $request, Comment $comment)
+    {
+        $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        Comment::create([
+            'content' => $request->input('content'),
+            'ticket_id' => $comment->ticket_id,
+            'parent_id' => $comment->id,
+            'user_id' => Auth::id(),
+        ]);
+
+        return redirect()->route('tickets.show', Str::slug($comment->ticket->title))
+            ->with('success', 'Reply added successfully.');
     }
 }
