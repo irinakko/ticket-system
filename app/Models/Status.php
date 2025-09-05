@@ -10,6 +10,6 @@ class Status extends Model
 
     public function tickets()
     {
-        return $this->hasMany(Ticket::class, 'status_id');
+        return $this->belongsToMany(Ticket::class, 'status_id');
     }
 }
