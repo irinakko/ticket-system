@@ -9,7 +9,6 @@ use App\Models\Status;
 use App\Models\Ticket;
 use App\Models\TicketAttachment;
 use App\Models\User;
-use App\Role as RoleEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,11 +18,9 @@ class TicketController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-        $ticketsQuery = Ticket::with(['status', 'labels', 'categories', 'user', 'priority', 'attachments']);
-
-        $tickets = $user->hasRole(RoleEnum::Admin->value)
-            ? $ticketsQuery->get()
-            : $ticketsQuery->where('user_id', $user->id)->get();
+        $tickets = Ticket::with(['status', 'labels', 'categories', 'user', 'priority', 'attachments'])
+            ->visibleTo($user)
+            ->get();
 
         return view('tickets.index', compact('tickets'));
     }
@@ -48,6 +45,7 @@ class TicketController extends Controller
             'priority_id' => 'required|exists:priorities,id',
             'status_id' => 'required|exists:statuses,id',
             'assignee_id' => 'required|exists:users,id',
+            'created_by' => 'nullable|exists:users,id',
             'category_ids' => 'nullable|array',
             'category_ids.*' => 'exists:categories,id',
             'label_ids' => 'nullable|array',
@@ -59,6 +57,7 @@ class TicketController extends Controller
             'priority_id' => $validated['priority_id'],
             'status_id' => $validated['status_id'],
             'user_id' => $validated['assignee_id'],
+            'created_by' => Auth::id(),
         ]);
 
         $ticket->categories()->sync($request->input('category_ids', []));
@@ -78,9 +77,12 @@ class TicketController extends Controller
 
     public function show($title)
     {
+        /** @var User $user */
+        $user = Auth::user();
         $title = str_replace('-', ' ', $title);
         $ticket = Ticket::with(['comments.user', 'status', 'priority', 'user', 'labels', 'categories', 'attachments'])
             ->where('title', $title)
+            ->visibleTo($user)
             ->firstOrFail();
 
         return view('tickets.show', compact('ticket'));
@@ -90,10 +92,7 @@ class TicketController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-
-        if (! $user->hasRole(RoleEnum::Admin->value)) {
-            abort(403, 'Unauthorized');
-        }
+        $ticket = Ticket::visibleTo($user)->findOrFail($ticket->id);
         $statuses = Status::all();
         $labels = Label::all();
         $categories = Category::all();
@@ -109,36 +108,38 @@ class TicketController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        if (! $user->hasRole(RoleEnum::Admin->value)) {
-            abort(403, 'Unauthorized');
-        }
+        $ticket = Ticket::visibleTo($user)->findOrFail($ticket->id);
+
         $ticket->update([
             'title' => $request->input('name'),
             'description' => $request->input('description'),
             'priority_id' => $request->input('priority_id'),
-            'label_id' => $request->input('label_id'),
             'status_id' => $request->input('status_id'),
-            'category_id' => $request->input('category_id'),
             'user_id' => $request->input('assignee_id'),
-            'attachment_id' => $request->input('attachment_id'),
+            'created_by' => Auth::id(),
         ]);
+
         $ticket->labels()->sync($request->input('label_ids', []));
         $ticket->categories()->sync($request->input('category_ids', []));
-        $ticket->attachments()->sync($request->input('attachment_ids', []));
 
-        return redirect()->route('tickets.index')->with('success', 'Ticket updated successfully.');
-    }
+        if ($request->filled('attachment_ids')) {
+            TicketAttachment::where('ticket_id', $ticket->id)->update(['ticket_id' => null]);
 
-    public function destroy(Ticket $ticket)
-    {  /** @var User $user */
-        $user = Auth::user();
-        if ($user->hasRole(RoleEnum::Admin->value)) {
-            $ticket->delete();
-
-            return redirect()->route('tickets.index')->with('success', 'Ticket deleted successfully.');
-        } else {
-            abort(403, 'Unauthorized');
+            TicketAttachment::whereIn('id', $request->input('attachment_ids'))->update([
+                'ticket_id' => $ticket->id,
+            ]);
         }
 
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('attachments', 'public');
+
+                $ticket->attachments()->create([
+                    'file_path' => $path,
+                ]);
+            }
+        }
+
+        return redirect()->route('tickets.index')->with('success', 'Ticket updated successfully.');
     }
 }
