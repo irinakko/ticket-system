@@ -14,6 +14,7 @@ class Ticket extends Model
         'priority_id',
         'status_id',
         'user_id',
+        'created_by',
     ];
 
     public function getPriorityLevelEnum(): ?PriorityLevel
@@ -54,5 +55,22 @@ class Ticket extends Model
     public function attachments()
     {
         return $this->hasMany(TicketAttachment::class, 'ticket_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function scopeVisibleTo($query, User $user)
+    {
+        if ($user->isAdmin()) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($user) {
+            $q->where('created_by', $user->id)
+                ->orWhere('user_id', $user->id);
+        });
     }
 }

@@ -68,4 +68,9 @@ class User extends Authenticatable
 
         return $enum !== null && $this->role->name === $enum->value;
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(RoleEnum::Admin->value);
+    }
 }
