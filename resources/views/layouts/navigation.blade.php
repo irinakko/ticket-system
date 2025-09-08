@@ -14,25 +14,28 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         <x-icon name="house" class="w-5 h-5" />
-                        {{ __('Dashboard') }}
+                        <span class="ml-2">{{ __('Dashboard') }}</span>
                     </x-nav-link>
-                      <a href="{{ route('tickets.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
-        Tickets
-    </a>
-    <a href="{{route('users.index')}}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
-        Users
-    </a>
-    <a href="{{ route('categories.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
-        Ticket Logs
-    </a>
-    
-                     <a href="{{ route('categories.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
-        Categories
-    </a>
-    
-        <a href="{{ route('labels.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
-        Labels
-    </a>
+                    <x-nav-link :href="route('tickets.index')" :active="request()->routeIs('tickets.index')">
+                        <x-icon name="folder-kanban" class="w-5 h-5" />
+                        <span class="ml-2">{{ __('Tickets') }}</span>
+                    </x-nav-link>
+          <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                        <x-icon name="users" class="w-5 h-5" />
+                        <span class="ml-2">{{ __('Users') }}</span>
+                    </x-nav-link>
+<x-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.index')">
+                        <x-icon name="file-stack" class="w-5 h-5" />
+                        <span class="ml-2">{{ __('Categories') }}</span>
+                    </x-nav-link>
+    <x-nav-link :href="route('tickets.index')" :active="request()->routeIs('tickets.index')">
+                        <x-icon name="house" class="w-5 h-5" />
+                        <span class="ml-2">{{ __('Ticket Logs') }}</span>
+                    </x-nav-link>
+    <x-nav-link :href="route('labels.index')" :active="request()->routeIs('labels.index')">
+                        <x-icon name="tag" class="w-5 h-5" />
+                        <span class="ml-2">{{ __('Labels') }}</span>
+</x-nav-link>
                 
                 </div>
             </div>
