@@ -4,14 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\Label;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LabelController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $labels = Label::all();
+        /** @var User $user */
+        $user = Auth::user();
+        $filters = $request->input('filters', []);
 
-        return view('labels.index', compact('labels'));
+        $query = Label::visibleTo($user);
+
+        // Filter by name
+        if (! empty($filters['name'])) {
+            $query->whereIn('name', $filters['name']);
+        }
+
+        $labels = $query->get();
+
+        // For filter dropdown
+        $names = Label::select('name')->distinct()->pluck('name');
+
+        return view('labels.index', [
+            'labels' => $labels,
+            'name' => $names,
+        ]);
     }
 
     public function create()

@@ -12,4 +12,11 @@ class Category extends Model
     {
         return $this->belongsToMany(Ticket::class, 'category_ticket', 'category_id', 'ticket_id');
     }
+
+    public function scopeVisibleTo($query, User $user)
+    {
+        if ($user->isAdmin()) {
+            return $query;
+        }
+    }
 }

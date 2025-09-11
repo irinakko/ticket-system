@@ -4,30 +4,42 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
+    public function index(Request $request)
+    {   /** @var User $user */
+        $user = Auth::user();
+        $filters = $request->input('filters', []);
+
+        $query = User::visibleTo($user);
+
+        if (! empty($filters['name'])) {
+            $query->whereIn('name', $filters['name']);
+        }
+
+        if (! empty($filters['email'])) {
+            $query->whereIn('email', $filters['email']);
+        }
+
+        $users = $query->get();
+
+        $names = User::select('name')->distinct()->pluck('name');
+        $emails = User::select('email')->distinct()->pluck('email');
+
         return view('users.index', [
-            'users' => User::all(),
+            'users' => $users,
+            'name' => $names,
+            'email' => $emails,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('users.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         User::create([
@@ -38,25 +50,16 @@ class UserController extends Controller
         return redirect()->route('users.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(User $user)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(User $user)
     {
         return view('users.edit', compact('user'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, User $user)
     {
         $user->update($request->only('name', 'email'));
@@ -64,9 +67,6 @@ class UserController extends Controller
         return redirect()->route('users.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(User $user)
     {
         $user->delete();

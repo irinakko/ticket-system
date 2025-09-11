@@ -4,14 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::all();
+        /** @var User $user */
+        $user = Auth::user();
+        $filters = $request->input('filters', []);
 
-        return view('categories.index', compact('categories'));
+        $query = Category::visibleTo($user);
+
+        // Filter by name
+        if (! empty($filters['name'])) {
+            $query->whereIn('name', $filters['name']);
+        }
+
+        $categories = $query->get();
+
+        // For filter dropdown
+        $names = Category::select('name')->distinct()->pluck('name');
+
+        return view('categories.index', [
+            'categories' => $categories,
+            'name' => $names,
+        ]);
     }
 
     public function create()

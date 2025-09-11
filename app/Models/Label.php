@@ -12,4 +12,11 @@ class Label extends Model
     {
         return $this->belongsToMany(Ticket::class, 'ticket_label', 'label_id', 'ticket_id');
     }
+
+    public function scopeVisibleTo($query, User $user)
+    {
+        if ($user->isAdmin()) {
+            return $query;
+        }
+    }
 }

@@ -28,10 +28,6 @@
                         <x-icon name="file-stack" class="w-5 h-5" />
                         <span class="ml-2">{{ __('Categories') }}</span>
                     </x-nav-link>
-    <x-nav-link :href="route('tickets.index')" :active="request()->routeIs('tickets.index')">
-                        <x-icon name="house" class="w-5 h-5" />
-                        <span class="ml-2">{{ __('Ticket Logs') }}</span>
-                    </x-nav-link>
     <x-nav-link :href="route('labels.index')" :active="request()->routeIs('labels.index')">
                         <x-icon name="tag" class="w-5 h-5" />
                         <span class="ml-2">{{ __('Labels') }}</span>
