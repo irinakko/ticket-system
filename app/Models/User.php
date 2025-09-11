@@ -73,4 +73,11 @@ class User extends Authenticatable
     {
         return $this->hasRole(RoleEnum::Admin->value);
     }
+
+    public function scopeVisibleTo($query, User $user)
+    {
+        if ($user->isAdmin()) {
+            return $query;
+        }
+    }
 }

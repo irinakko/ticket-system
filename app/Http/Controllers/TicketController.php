@@ -14,15 +14,64 @@ use Illuminate\Support\Facades\Auth;
 
 class TicketController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         /** @var User $user */
         $user = Auth::user();
-        $tickets = Ticket::with(['status', 'labels', 'categories', 'user', 'priority', 'attachments'])
-            ->visibleTo($user)
-            ->get();
 
-        return view('tickets.index', compact('tickets'));
+        $filters = $request->input('filters', []);
+
+        $query = Ticket::with(['status', 'labels', 'categories', 'user', 'priority', 'attachments'])
+            ->visibleTo($user);
+
+        if (! empty($filters['name'])) {
+            $query->where('title', 'like', '%'.$filters['name'].'%');
+        }
+
+        if (! empty($filters['priority'])) {
+            $query->whereIn('priority_id', $filters['priority']);
+        }
+
+        if (! empty($filters['status'])) {
+            $query->whereIn('status_id', $filters['status']);
+        }
+
+        if (! empty($filters['categories'])) {
+            $query->whereHas('categories', function ($q) use ($filters) {
+                $q->whereIn('categories.id', $filters['categories']);
+            });
+        }
+
+        if (! empty($filters['labels'])) {
+            $query->whereHas('labels', function ($q) use ($filters) {
+                $q->whereIn('labels.id', $filters['labels']);
+            });
+        }
+
+        if (! empty($filters['assignee'])) {
+            $query->whereIn('user_id', $filters['assignee']);
+        }
+
+        $tickets = $query->get()->map(function ($ticket) {
+            $ticket->name = $ticket->title;
+
+            return $ticket;
+        });
+
+        $priorities = Priority::all();
+        $statuses = Status::all();
+        $categories = Category::all();
+        $labels = Label::all();
+        $assignees = User::all();
+
+        return view('tickets.index', compact(
+            'tickets',
+            'priorities',
+            'statuses',
+            'categories',
+            'labels',
+            'assignees'
+        ));
     }
 
     public function create(Request $request)
