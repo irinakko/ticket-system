@@ -26,6 +26,10 @@
                         <span class="ml-2">{{ __('Tickets') }}</span>
                     </x-nav-link>
                     @role('admin')
+                    <x-nav-link :href="route('ticket-logs.index')" :active="request()->routeIs('ticket-logs.index')">
+                        <x-icon name="logs" class="w-5 h-5" />
+                        <span class="ml-2">{{ __('Ticket Logs') }}</span>
+                    </x-nav-link>
           <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                         <x-icon name="users" class="w-5 h-5" />
                         <span class="ml-2">{{ __('Users') }}</span>

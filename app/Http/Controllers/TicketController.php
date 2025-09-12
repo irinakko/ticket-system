@@ -7,6 +7,7 @@ use App\Models\Label;
 use App\Models\Priority;
 use App\Models\Status;
 use App\Models\Ticket;
+use App\Models\TicketActivityLog;
 use App\Models\TicketAttachment;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -120,6 +121,19 @@ class TicketController extends Controller
                 ]);
             }
         }
+        TicketActivityLog::create([
+            'ticket_id' => $ticket->id,
+            'user_id' => Auth::id(),
+            'action' => 'created',
+            'details' => json_encode([
+                'title' => $ticket->title,
+                'status' => $ticket->status->name,
+                'categories' => $ticket->categories->pluck('name'),
+                'labels' => $ticket->labels->pluck('name'),
+                'priority' => $ticket->priority->name,
+                'assignee' => $ticket->user->id,
+            ]),
+        ]);
 
         return redirect()->route('tickets.index')->with('success', 'Ticket created successfully.');
     }
@@ -159,7 +173,7 @@ class TicketController extends Controller
 
         $ticket = Ticket::visibleTo($user)->findOrFail($ticket->id);
 
-        $ticket->update([
+        $ticket->fill([
             'title' => $request->input('name'),
             'description' => $request->input('description'),
             'priority_id' => $request->input('priority_id'),
@@ -167,6 +181,24 @@ class TicketController extends Controller
             'user_id' => $request->input('assignee_id'),
             'created_by' => Auth::id(),
         ]);
+
+        if ($ticket->isDirty()) {
+            $ticket->save();
+
+            TicketActivityLog::create([
+                'ticket_id' => $ticket->id,
+                'user_id' => Auth::id(),
+                'action' => 'updated',
+                'details' => [
+                    'title' => $ticket->title,
+                    'status' => optional($ticket->status)->name,
+                    'categories' => $ticket->categories->pluck('name')->toArray(),
+                    'labels' => $ticket->labels->pluck('name')->toArray(),
+                    'priority' => optional($ticket->priority)->name,
+                    'assignee' => optional($ticket->user)->name,
+                ],
+            ]);
+        }
 
         $ticket->labels()->sync($request->input('label_ids', []));
         $ticket->categories()->sync($request->input('category_ids', []));
@@ -190,5 +222,31 @@ class TicketController extends Controller
         }
 
         return redirect()->route('tickets.index')->with('success', 'Ticket updated successfully.');
+    }
+
+    public function destroy(Ticket $ticket)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $ticket = Ticket::with(['status', 'categories', 'labels', 'priority', 'user'])
+            ->visibleTo($user)
+            ->findOrFail($ticket->id);
+        TicketActivityLog::create([
+            'ticket_id' => $ticket->id,
+            'user_id' => Auth::id(),
+            'action' => 'deleted',
+            'details' => json_encode([
+                'title' => $ticket->title,
+                'status' => optional($ticket->status)->name,
+                'categories' => $ticket->categories->pluck('name')->toArray(),
+                'labels' => $ticket->labels->pluck('name')->toArray(),
+                'priority' => optional($ticket->priority)->name,
+                'assignee' => optional($ticket->user)->name,
+            ]),
+        ]);
+        $ticket->delete();
+
+        return redirect()->route('tickets.index')->with('success', 'Ticket deleted successfully.');
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LabelController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TicketActivityLogController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('tickets', TicketController::class);
         Route::resource('users', UserController::class);
         Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+        Route::get('/ticket-logs', [TicketActivityLogController::class, 'index'])->name('ticket-logs.index');
     });
 
     Route::middleware([\App\Http\Middleware\HasRole::class.':admin,user,agent'])->group(function () {
