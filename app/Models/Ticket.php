@@ -5,9 +5,12 @@ namespace App\Models;
 use App\PriorityLevel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ticket extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'title',
         'description',
@@ -72,5 +75,10 @@ class Ticket extends Model
             $q->where('created_by', $user->id)
                 ->orWhere('user_id', $user->id);
         });
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(TicketActivityLog::class, 'ticket_id');
     }
 }

@@ -6,6 +6,8 @@
     'extraColumns' => '',
     'clickableRows' => false,
     'filters' => [],
+    'showCreate' => true,
+    'readOnly' => false,
 ])
 @php
     use Illuminate\Support\Str;
@@ -22,10 +24,12 @@
                 <div class="p-6 text-gray-900">
 
                     {{-- Add new item button --}}
-                    <a href="{{ route($routeBase . '.create') }}"
-                       class="inline-flex items-center px-4 py-2 mb-4 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
-                        Add new {{ Str::singular($title) }}
-                    </a>
+                    @if ($showCreate)
+                        <a href="{{ route($routeBase . '.create') }}"
+                           class="inline-flex items-center px-4 py-2 mb-4 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                            Add new {{ Str::singular($title) }}
+                        </a>
+                    @endif
 
                     {{-- Filters Form --}}
                     <form method="GET" action="{{ route($routeBase . '.index') }}" class="mb-6 flex flex-wrap gap-4">
@@ -61,7 +65,9 @@
                                 <tr>
                                     <th class="px-6 py-3 text-left">Name</th>
                                     {!! $extraHeaders !!}
+                                    @if (!$readOnly)
                                     <th class="px-6 py-3 text-right">Actions</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody class="text-gray-700 divide-y divide-gray-200">
@@ -82,6 +88,7 @@
                                         @endif
 
                                         {{-- Actions --}}
+                                        @if (!$readOnly)
                                         <td class="px-6 py-4 text-right space-x-2" onclick="event.stopPropagation()" onkeydown="event.stopPropagation();">
                                             <a href="{{ route($routeBase . '.edit', $item) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
                                             <form method="POST" action="{{ route($routeBase . '.destroy', $item) }}" class="inline-block" onsubmit="event.stopPropagation(); return confirm('Are you sure?');">
@@ -90,6 +97,7 @@
                                                 <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Delete</button>
                                             </form>
                                         </td>
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>
