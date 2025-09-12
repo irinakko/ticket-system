@@ -23,6 +23,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('labels', LabelController::class);
         Route::resource('tickets', TicketController::class);
         Route::resource('users', UserController::class);
+        Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     });
 
     Route::middleware([\App\Http\Middleware\HasRole::class.':admin,user,agent'])->group(function () {
@@ -33,8 +34,5 @@ Route::middleware('auth')->group(function () {
 
     });
 });
-
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard')
-    ->middleware(['auth', 'verified']);
 
 require __DIR__.'/auth.php';

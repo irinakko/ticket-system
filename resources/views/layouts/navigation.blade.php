@@ -1,3 +1,6 @@
+@php
+    use Spatie\Permission\Traits\HasRoles;
+@endphp
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -12,14 +15,17 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    @role('admin')
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         <x-icon name="house" class="w-5 h-5" />
                         <span class="ml-2">{{ __('Dashboard') }}</span>
                     </x-nav-link>
+                    @endrole
                     <x-nav-link :href="route('tickets.index')" :active="request()->routeIs('tickets.index')">
                         <x-icon name="folder-kanban" class="w-5 h-5" />
                         <span class="ml-2">{{ __('Tickets') }}</span>
                     </x-nav-link>
+                    @role('admin')
           <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                         <x-icon name="users" class="w-5 h-5" />
                         <span class="ml-2">{{ __('Users') }}</span>
@@ -32,6 +38,7 @@
                         <x-icon name="tag" class="w-5 h-5" />
                         <span class="ml-2">{{ __('Labels') }}</span>
 </x-nav-link>
+@endrole
                 
                 </div>
             </div>

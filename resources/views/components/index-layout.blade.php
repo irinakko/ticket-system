@@ -7,6 +7,9 @@
     'clickableRows' => false,
     'filters' => [],
 ])
+@php
+    use Illuminate\Support\Str;
+@endphp
 
 <x-app-layout>
     <x-slot name="header">
@@ -65,10 +68,10 @@
                                 @foreach ($items as $item)
                                     <tr
                                         @if ($clickableRows)
-                                            onclick="window.location='{{ route($routeBase . '.show', \Illuminate\Support\Str::slug($item->title ?? $item->name)) }}'"
+                                            onclick="window.location='{{ route($routeBase . '.show', Str::slug($item->title ?? $item->name)) }}'"
                                             class="cursor-pointer hover:bg-gray-100"
                                             tabindex="0"
-                                            onkeydown="if(event.key==='Enter'){window.location='{{ route($routeBase . '.show', \Illuminate\Support\Str::slug($item->title ?? $item->name)) }}'}"
+                                            onkeydown="if(event.key==='Enter'){window.location='{{ route($routeBase . '.show', Str::slug($item->title ?? $item->name)) }}'}"
                                         @endif
                                     >
                                         <td class="px-6 py-4">{{ $item->name }}</td>
