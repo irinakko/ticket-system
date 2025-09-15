@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TicketActivityLog extends Model
 {
-    protected $fillable = ['ticket_id', 'user_id', 'action', 'details'];
+    protected $fillable = ['ticket_id', 'user_id', 'action', 'details', 'created_at'];
 
     protected $casts = [
         'details' => 'array',

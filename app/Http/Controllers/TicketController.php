@@ -125,14 +125,14 @@ class TicketController extends Controller
             'ticket_id' => $ticket->id,
             'user_id' => Auth::id(),
             'action' => 'created',
-            'details' => json_encode([
+            'details' => [
                 'title' => $ticket->title,
                 'status' => $ticket->status->name,
-                'categories' => $ticket->categories->pluck('name'),
-                'labels' => $ticket->labels->pluck('name'),
+                'categories' => $ticket->categories->pluck('name')->toArray(),
+                'labels' => $ticket->labels->pluck('name')->toArray(),
                 'priority' => $ticket->priority->name,
                 'assignee' => $ticket->user->id,
-            ]),
+            ],
         ]);
 
         return redirect()->route('tickets.index')->with('success', 'Ticket created successfully.');

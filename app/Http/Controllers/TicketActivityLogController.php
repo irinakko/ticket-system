@@ -39,7 +39,11 @@ class TicketActivityLogController extends Controller
             $query->where('details', 'like', '%'.$filtersInput['details'].'%');
         }
 
-        $logs = $query->get();
+        $logs = $query->get()->map(function ($log) {
+            $log->name = $log->ticket->title ?? 'N/A';
+
+            return $log;
+        });
 
         $users = User::all();
 

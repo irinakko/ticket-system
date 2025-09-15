@@ -124,7 +124,7 @@
         function onFilterChange() {
         const filters = {};
 
-        // Collect all selected options for each filter
+        
         document.querySelectorAll('select[name^="filters"]').forEach(select => {
             const name = select.name.match(/filters\[(.+?)\]/)[1];
             const selectedOptions = Array.from(select.selectedOptions).map(o => o.value);
@@ -133,19 +133,19 @@
             }
         });
 
-        // Build query string with filters
+       
         const params = new URLSearchParams();
 
         for (const [key, values] of Object.entries(filters)) {
             values.forEach(value => params.append(`filters[${key}][]`, value));
         }
 
-        // Reload page with new filters
+        
         const baseUrl = window.location.origin + window.location.pathname;
         window.location.href = baseUrl + '?' + params.toString();
     }
 
-    // Attach change event to all filter selects
+    
     document.querySelectorAll('.tom-select').forEach(select => {
         select.addEventListener('change', onFilterChange);
     });
