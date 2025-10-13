@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\PriorityLevel;
+use App\Role as RoleEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -67,7 +68,7 @@ class Ticket extends Model
 
     public function scopeVisibleTo($query, User $user)
     {
-        if ($user->isAdmin()) {
+        if ($user->hasRole(RoleEnum::Admin->value)) {
             return $query;
         }
 
@@ -79,6 +80,6 @@ class Ticket extends Model
 
     public function activityLogs()
     {
-        return $this->hasMany(TicketActivityLog::class, 'ticket_id');
+        return $this->hasMany(TicketLogs::class, 'ticket_id');
     }
 }

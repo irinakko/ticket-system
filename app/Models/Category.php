@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Role as RoleEnum;
 use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
@@ -15,7 +16,7 @@ class Category extends Model
 
     public function scopeVisibleTo($query, User $user)
     {
-        if ($user->isAdmin()) {
+        if ($user->hasRole(RoleEnum::Admin->value)) {
             return $query;
         }
     }
