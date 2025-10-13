@@ -67,19 +67,12 @@ class User extends Authenticatable
             return false;
         }
 
-        $enum = RoleEnum::tryFrom($role);
-
-        return $enum !== null && $this->role->name === $enum->value;
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->hasRole(RoleEnum::Admin->value);
+        return $this->role->name === $role;
     }
 
     public function scopeVisibleTo($query, User $user)
     {
-        if ($user->isAdmin()) {
+        if ($user->hasRole(RoleEnum::Admin->value)) {
             return $query;
         }
     }

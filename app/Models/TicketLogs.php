@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Role as RoleEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -26,7 +27,7 @@ class TicketLogs extends Model
 
     public function getUserNameAttribute(): ?string
     {
-        return optional(\App\Models\User::find($this->event_properties['userId'] ?? null))->name;
+        return optional(User::find($this->event_properties['userId'] ?? null))->name;
     }
 
     public function getChangesAttribute(): array
@@ -47,5 +48,22 @@ class TicketLogs extends Model
     public function getTimestampAttribute(): Carbon
     {
         return $this->created_at;
+    }
+
+    public function scopeVisibleTo($query, User $user)
+    {
+        if ($user->hasRole(RoleEnum::Admin->value)) {
+            return $query;
+        }
+    }
+
+    public function ticket()
+    {
+        return $this->belongsTo(Ticket::class, 'aggregate_uuid', 'uuid');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'event_properties->userId');
     }
 }

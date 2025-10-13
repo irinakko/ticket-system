@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Aggregates\TicketAggregate;
+use App\Http\Requests\StoreTicketRequest;
+use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Category;
 use App\Models\Label;
 use App\Models\Priority;
@@ -88,31 +90,16 @@ class TicketController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreTicketRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'priority_id' => 'required|exists:priorities,id',
-            'status_id' => 'required|exists:statuses,id',
-            'assignee_id' => 'required|exists:users,id',
-            'created_by' => 'nullable|exists:users,id',
-            'category_ids' => 'nullable|array',
-            'category_ids.*' => 'exists:categories,id',
-            'label_ids' => 'nullable|array',
-            'label_ids.*' => 'exists:labels,id',
-            'attachments.*' => 'nullable|file|max:10240',
-        ]);
-        $ticket = Ticket::create(['title' => $validated['name'],
-            'description' => $validated['description'] ?? null,
-            'priority_id' => $validated['priority_id'],
-            'status_id' => $validated['status_id'],
-            'user_id' => $validated['assignee_id'],
-            'created_by' => Auth::id(),
-        ]);
+        $data = $request->validated();
+        $data['user_id'] = $data['assignee_id'];
+        unset($data['assignee_id']);
+        $ticket = Ticket::create($data);
 
         $ticket->categories()->sync($request->input('category_ids', []));
         $ticket->labels()->sync($request->input('label_ids', []));
+
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 $path = $file->store('attachments', 'public');
@@ -121,9 +108,11 @@ class TicketController extends Controller
                     'file_path' => $path,
                 ]);
             }
+
         }
-        /** @var User $user */
+        /** @var \App\Models\User $user */
         $user = Auth::user();
+
         $details = $this->getTicketDetails($ticket);
         TicketAggregate::retrieve($ticket->id)
             ->createTicket($ticket->id, $user->id, $details)
@@ -160,7 +149,7 @@ class TicketController extends Controller
         return view('tickets.edit', compact('ticket', 'statuses', 'categories', 'labels', 'priorities', 'users', 'attachments'));
     }
 
-    public function update(Request $request, Ticket $ticket)
+    public function update(UpdateTicketRequest $request, Ticket $ticket)
     {
         $user = Auth::user();
 
