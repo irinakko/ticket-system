@@ -9,8 +9,8 @@ class TicketLogsController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Tickets/TicketLogs/Index', [
-            'logsTable' => TicketLogs::make()]
-        );
+        return Inertia::render('TicketLogs', [
+            'logsTable' => TicketLogs::make(),
+        ]);
     }
 }

@@ -59,7 +59,7 @@ class TicketLogs extends Model
 
     public function ticket()
     {
-        return $this->belongsTo(Ticket::class, 'aggregate_uuid', 'uuid');
+        return $this->belongsTo(Ticket::class, 'aggregate_uuid', 'id');
     }
 
     public function user()

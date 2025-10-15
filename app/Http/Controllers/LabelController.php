@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Label;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class LabelController extends Controller
 {
@@ -26,9 +27,10 @@ class LabelController extends Controller
         // For filter dropdown
         $names = Label::select('name')->distinct()->pluck('name');
 
-        return view('labels.index', [
+        return Inertia::render('Labels/Index', [
             'labels' => $labels,
             'name' => $names,
+            'filters' => $filters,
         ]);
     }
 

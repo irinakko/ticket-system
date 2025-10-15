@@ -15,6 +15,7 @@ use App\Models\TicketLogs;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class TicketController extends Controller
 {
@@ -68,14 +69,15 @@ class TicketController extends Controller
         $labels = Label::all();
         $assignees = User::all();
 
-        return view('tickets.index', compact(
-            'tickets',
-            'priorities',
-            'statuses',
-            'categories',
-            'labels',
-            'assignees'
-        ));
+        return Inertia::render('Tickets/Index', [
+            'tickets' => $tickets,
+            'priorities' => $priorities,
+            'statuses' => $statuses,
+            'categories' => $categories,
+            'labels' => $labels,
+            'assignees' => $assignees,
+            'filters' => $filters,
+        ]);
     }
 
     public function create(Request $request)

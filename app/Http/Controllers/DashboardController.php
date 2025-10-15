@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
@@ -24,6 +25,9 @@ class DashboardController extends Controller
             ->pluck('count', 'role_name')
             ->toArray();
 
-        return view('dashboard', compact('ticketCounts', 'userCounts'));
+        return Inertia::render('Dashboard', [
+            'ticketCounts' => $ticketCounts,
+            'userCounts' => $userCounts,
+        ]);
     }
 }
