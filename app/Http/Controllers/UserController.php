@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -28,10 +29,11 @@ class UserController extends Controller
         $names = User::select('name')->distinct()->pluck('name');
         $emails = User::select('email')->distinct()->pluck('email');
 
-        return view('users.index', [
+        return Inertia::render('Users/Index', [
             'users' => $users,
             'name' => $names,
             'email' => $emails,
+            'filters' => $filters,
         ]);
     }
 

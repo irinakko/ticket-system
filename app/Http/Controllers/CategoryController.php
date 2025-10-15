@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
@@ -26,9 +27,10 @@ class CategoryController extends Controller
         // For filter dropdown
         $names = Category::select('name')->distinct()->pluck('name');
 
-        return view('categories.index', [
+        return Inertia::render('Categories/Index', [
             'categories' => $categories,
             'name' => $names,
+            'filters' => $filters,
         ]);
     }
 
