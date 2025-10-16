@@ -29,6 +29,7 @@
                @click="dropdown = !dropdown"
               class="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none">
                 <div v-if="user">{{ user.name }}</div>
+
                 <div class="ml-1">
                   <svg class="fill-current h-4 w-4" viewBox="0 0 20 20">
                     <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0L5.293 8.707a1 1 0 010-1.414z"/>

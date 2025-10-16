@@ -22,7 +22,7 @@ Route::middleware('auth', HandleInertiaRequests::class)->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::middleware([HasRole::class.':admin'], HandleInertiaRequests::class)->group(function () {
-        Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+        Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit']);
         Route::get('/labels', [LabelController::class, 'index'])->name('labels.index');
         Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
         Route::get('/users', [UserController::class, 'index'])->name('users.index');

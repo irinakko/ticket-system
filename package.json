@@ -25,9 +25,11 @@
     "dependencies": {
         "@inertiajs/vue3": "^2.2.8",
         "@vitejs/plugin-vue": "^6.0.1",
+        "@vueform/multiselect": "^2.6.11",
         "lucide": "^0.541.0",
         "lucide-vue-next": "^0.545.0",
         "radix-vue": "^1.9.17",
-        "vue": "^3.5.22"
+        "vue": "^3.5.22",
+        "ziggy-js": "^2.6.0"
     }
 }
