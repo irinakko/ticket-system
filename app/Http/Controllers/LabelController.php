@@ -17,45 +17,31 @@ class LabelController extends Controller
 
         $query = Label::visibleTo($user);
 
-        // Filter by name
         if (! empty($filters['name'])) {
             $query->whereIn('name', $filters['name']);
         }
 
         $labels = $query->get();
 
-        // For filter dropdown
         $names = Label::select('name')->distinct()->pluck('name');
 
         return Inertia::render('Labels/Index', [
             'labels' => $labels,
-            'name' => $names,
-            'filters' => $filters,
+            'filters' => [
+                'name' => $names,
+            ],
         ]);
-    }
-
-    public function create()
-    {
-        return view('labels.create');
     }
 
     public function store(Request $request)
     {
-        Label::create([
-            'name' => $request->input('name'),
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
         ]);
 
+        Label::create($validated);
+
         return redirect()->route('labels.index');
-    }
-
-    public function show(Label $label)
-    {
-        //
-    }
-
-    public function edit(Label $label)
-    {
-        return view('labels.edit', compact('label'));
     }
 
     public function update(Request $request, Label $label)

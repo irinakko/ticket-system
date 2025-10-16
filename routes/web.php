@@ -23,7 +23,7 @@ Route::middleware('auth', HandleInertiaRequests::class)->group(function () {
 
     Route::middleware([HasRole::class.':admin'], HandleInertiaRequests::class)->group(function () {
         Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit']);
-        Route::get('/labels', [LabelController::class, 'index'])->name('labels.index');
+        Route::resource('labels', LabelController::class)->except(['show', 'create', 'edit']);
         Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
