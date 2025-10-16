@@ -17,45 +17,31 @@ class CategoryController extends Controller
 
         $query = Category::visibleTo($user);
 
-        // Filter by name
         if (! empty($filters['name'])) {
             $query->whereIn('name', $filters['name']);
         }
 
         $categories = $query->get();
 
-        // For filter dropdown
         $names = Category::select('name')->distinct()->pluck('name');
 
         return Inertia::render('Categories/Index', [
             'categories' => $categories,
-            'name' => $names,
-            'filters' => $filters,
+            'filters' => [
+                'name' => $names,
+            ],
         ]);
-    }
-
-    public function create()
-    {
-        return view('categories.create');
     }
 
     public function store(Request $request)
     {
-        Category::create([
-            'name' => $request->input('name'),
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
         ]);
 
+        Category::create($validated);
+
         return redirect()->route('categories.index');
-    }
-
-    public function show(Category $category)
-    {
-        //
-    }
-
-    public function edit(Category $category)
-    {
-        return view('categories.edit', compact('category'));
     }
 
     public function update(Request $request, Category $category)
