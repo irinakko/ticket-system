@@ -26,57 +26,63 @@ class TicketController extends Controller
 
         $filters = $request->input('filters', []);
 
-        $query = Ticket::with(['status', 'labels', 'categories', 'user', 'priority', 'attachments'])
+        $query = Ticket::with(['status', 'priority', 'categories', 'labels', 'user', 'creator'])
             ->visibleTo($user);
 
-        if (! empty($filters['name'])) {
-            $query->where('title', 'like', '%'.$filters['name'].'%');
+        foreach ($filters as $filter => $values) {
+            if (empty($values)) {
+                continue;
+            }
+
+            switch ($filter) {
+                case 'status':
+                    $query->whereIn('status_id', $values);
+                    break;
+                case 'priority':
+                    $query->whereIn('priority_id', $values);
+                    break;
+                case 'categories':
+                    $query->whereHas('categories', fn ($q) => $q->whereIn('categories.id', $values));
+                    break;
+                case 'labels':
+                    $query->whereHas('labels', fn ($q) => $q->whereIn('labels.id', $values));
+                    break;
+                case 'assignee':
+                    $query->whereHas('user', fn ($q) => $q->whereIn('users.id', $values));
+                    break;
+                case 'created_by':
+                    $query->whereHas('creator', fn ($q) => $q->whereIn('users.id', $values));
+                    break;
+                case 'name':
+                    $query->whereLike('title', $values);
+                    break;
+            }
         }
 
-        if (! empty($filters['priority'])) {
-            $query->whereIn('priority_id', $filters['priority']);
-        }
-
-        if (! empty($filters['status'])) {
-            $query->whereIn('status_id', $filters['status']);
-        }
-
-        if (! empty($filters['categories'])) {
-            $query->whereHas('categories', function ($q) use ($filters) {
-                $q->whereIn('categories.id', $filters['categories']);
-            });
-        }
-
-        if (! empty($filters['labels'])) {
-            $query->whereHas('labels', function ($q) use ($filters) {
-                $q->whereIn('labels.id', $filters['labels']);
-            });
-        }
-
-        if (! empty($filters['assignee'])) {
-            $query->whereIn('user_id', $filters['assignee']);
-        }
-
-        $tickets = $query->get()->map(function ($ticket) {
-            $ticket->name = $ticket->title;
-
-            return $ticket;
-        });
-
-        $priorities = Priority::all();
-        $statuses = Status::all();
-        $categories = Category::all();
-        $labels = Label::all();
-        $assignees = User::all();
+        $tickets = $query->paginate(8)->through(fn ($ticket) => [
+            'id' => $ticket->id,
+            'name' => $ticket->title,
+            'status' => $ticket->status->name,
+            'priority' => $ticket->priority->name,
+            'assigned_to' => $ticket->user ? ['id' => $ticket->user->id, 'name' => $ticket->user->name] : null,
+            'created_by' => $ticket->creator ? ['id' => $ticket->creator->id, 'name' => $ticket->creator->name] : null,
+            'categories' => $ticket->categories->pluck('name'),
+            'labels' => $ticket->labels->pluck('name'),
+            'created_at' => $ticket->created_at->toDateTimeString(),
+        ]);
 
         return Inertia::render('Tickets/Index', [
             'tickets' => $tickets,
-            'priorities' => $priorities,
-            'statuses' => $statuses,
-            'categories' => $categories,
-            'labels' => $labels,
-            'assignees' => $assignees,
-            'filters' => $filters,
+            'filterOptions' => [
+                'status' => Status::select('id', 'name')->get(),
+                'priority' => Priority::select('id', 'name')->get(),
+                'categories' => Category::select('id', 'name')->get(),
+                'labels' => Label::select('id', 'name')->get(),
+                'assignee' => User::select('id', 'name')->get(),
+                'created_by' => User::select('id', 'name')->get(),
+                'name' => Ticket::select('title')->distinct()->pluck('title'),
+            ],
+            'appliedFilters' => $filters,
         ]);
     }
 
