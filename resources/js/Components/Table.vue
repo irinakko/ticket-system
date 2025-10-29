@@ -131,8 +131,6 @@ const props = defineProps({
 const selectedFilters = ref({})
 
 onMounted(async() => {
-  console.log('Backend filters:', JSON.parse(JSON.stringify(props.filters)))
-
  await nextTick()
 
   const sel = {}
@@ -155,7 +153,6 @@ onMounted(async() => {
   }
 
   selectedFilters.value = sel
-  console.log('selectedFilters after onMounted:', JSON.parse(JSON.stringify(selectedFilters.value)))
 })
 
 
@@ -174,7 +171,6 @@ const filters = {};
 })
 
 function applyFilters() {
-  console.log('Sending filters to backend:', cleanFilters.value)
   router.get(route(`${props.routeBase}.index`), { filters: cleanFilters.value }, {
     preserveState: true,
     replace: true,
@@ -182,8 +178,6 @@ function applyFilters() {
 }
 
 watch(selectedFilters, () => {
-  console.log('selectedFilters debug:', JSON.parse(JSON.stringify(selectedFilters.value)))
-  console.log('cleanFilters:', cleanFilters.value)
   applyFilters()
 }, { deep: true })
 
