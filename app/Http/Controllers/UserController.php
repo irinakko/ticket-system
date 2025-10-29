@@ -24,18 +24,19 @@ class UserController extends Controller
             $query->whereIn('email', $filters['email']);
         }
 
-        $users = $query->paginate(8)->through(fn ($user) => [
+        $users = $query->get()->map(fn ($user) => [
+            'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
         ]);
 
-        $names = User::select('name')->distinct()->pluck('name');
-        $emails = User::select('email')->distinct()->pluck('email');
+        $filters = [
+            'name' => User::select('name')->distinct()->pluck('name'),
+            'email' => User::select('email')->distinct()->pluck('email'),
+        ];
 
         return Inertia::render('Users/Index', [
-            'users' => $users,
-            'name' => $names,
-            'email' => $emails,
+            'users' => ['data' => $users],
             'filters' => $filters,
         ]);
     }
