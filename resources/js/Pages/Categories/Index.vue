@@ -47,8 +47,8 @@ import { route } from 'ziggy-js'
 import MainLayout from '../../Layouts/MainLayout.vue'
 
 const props = defineProps({
-  categories: Array,
-  filters: Object,
+  categories: { type: Object, default: () => ({ data: [], links: [] }) },
+  filters: { type: Object, default: () => ({}) },
 })
 
 const showModal = ref(false)

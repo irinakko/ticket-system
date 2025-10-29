@@ -24,7 +24,10 @@ class UserController extends Controller
             $query->whereIn('email', $filters['email']);
         }
 
-        $users = $query->get();
+        $users = $query->paginate(8)->through(fn ($user) => [
+            'name' => $user->name,
+            'email' => $user->email,
+        ]);
 
         $names = User::select('name')->distinct()->pluck('name');
         $emails = User::select('email')->distinct()->pluck('email');
