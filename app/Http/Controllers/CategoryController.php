@@ -21,12 +21,16 @@ class CategoryController extends Controller
             $query->whereIn('name', $filters['name']);
         }
 
-        $categories = $query->get();
+        $categories = $query->get()->map(fn ($category) => [
+            'name' => $category->name,
+        ]);
 
         $names = Category::select('name')->distinct()->pluck('name');
 
         return Inertia::render('Categories/Index', [
-            'categories' => $categories,
+            'categories' => [
+                'data' => $categories,
+            ],
             'filters' => [
                 'name' => $names,
             ],

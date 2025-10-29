@@ -21,12 +21,16 @@ class LabelController extends Controller
             $query->whereIn('name', $filters['name']);
         }
 
-        $labels = $query->get();
+        $labels = $query->get()->map(fn ($label) => [
+            'name' => $label->name,
+        ]);
 
         $names = Label::select('name')->distinct()->pluck('name');
 
         return Inertia::render('Labels/Index', [
-            'labels' => $labels,
+            'labels' => [
+                'data' => $labels,
+            ],
             'filters' => [
                 'name' => $names,
             ],

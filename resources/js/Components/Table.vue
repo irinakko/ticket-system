@@ -20,10 +20,10 @@
     <Multiselect
       v-model="selectedFilters[name]"
       :options="options"
-      option-label="name"
-      option-value="id"
-      mode="multiple"
+      :option-label="'name'"
+      :option-value="'id'"
       :track-by="'id'"
+      mode="multiple"
       :label="'name'"
       :searchable="true"
       placeholder="Select..."
@@ -122,7 +122,7 @@ const props = defineProps({
   items: { type: Object, default: () => ({ data: [], links: [] }) },
   title: { type: String, required: true },
   routeBase: { type: String, required: true },
-  filters: { type: Object, default: () => ({}) },
+  filters: Object,     
   clickableRows: { type: Boolean, default: false },
   showCreate: { type: Boolean, default: true },
   readOnly: { type: Boolean, default: false },
@@ -131,32 +131,44 @@ const props = defineProps({
 const selectedFilters = ref({})
 
 onMounted(() => {
-     for (const key in props.filters) {
-    const applied = props.appliedFilters?.[key] ?? []
-    const options = props.filters[key] || []
+  console.log('Backend filters:', JSON.parse(JSON.stringify(props.filters)))
+  for (const key in props.filters) {
+    const options = props.filters[key] || [];
 
-    selectedFilters.value[key] = options
-      .map(option => {
-        const id = typeof option === 'object' ? option.id : option
-        return applied.map(String).includes(String(id)) ? option : null
-      })
-      .filter(Boolean)
+    selectedFilters.value[key] = [];
+
+    if (props.appliedFilters?.[key]?.length) {
+      let applied = props.appliedFilters[key];
+
+      // Convert objects to IDs
+      if (typeof applied[0] === 'object' && applied[0].id !== undefined) {
+        applied = applied.map(a => a.id);
+      }
+
+      if (options.length && typeof options[0] === 'object' && 'id' in options[0]) {
+        selectedFilters.value[key] = options.filter(option => applied.includes(option.id));
+      } else {
+        selectedFilters.value[key] = options.filter(option => applied.includes(option));
+      }
+    }
   }
-})
+
+  console.log('selectedFilters after onMounted:', JSON.parse(JSON.stringify(selectedFilters.value)));
+});
+
 
 const cleanFilters = computed(() => {
-    const filters = {}
+  const filters = {};
   for (const [key, value] of Object.entries(selectedFilters.value)) {
-    if (!value || value.length === 0) continue
+    if (!value || value.length === 0) continue;
 
-    filters[key] = value
-      .map(v => {
-        if (typeof v === 'object') return v.id
-        return v
-      })
-      .filter(v => v !== undefined && v !== null)
+    if (value.length && typeof value[0] === 'object' && 'id' in value[0]) {
+      filters[key] = value.map(v => v.id).filter(v => v !== undefined && v !== null);
+    } else {
+      filters[key] = value.filter(v => v !== undefined && v !== null);
+    }
   }
-  return filters
+  return filters;
 })
 
 function applyFilters() {

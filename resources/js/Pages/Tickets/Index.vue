@@ -4,16 +4,14 @@
       title="Tickets"
       routeBase="tickets"
       :items="tickets"
-      :filters="filterOptions"     
-      :applied-filters="filters" 
-      @apply-filters="applyFilters"
+      :filters="filters"
       @edit="openModal($event)"
       @delete="deleteTicket"
       @open-create-modal="openModal()">
 
     <template #extraHeaders>
         <th class="px-6 py-3 text-left text-sm font-semibold">Created by</th>
-        <th class="px-6 py-3 text-left text-sm font-semibold">Assigned To</th>
+        <th class="px-6 py-3 text-left text-sm font-semibold">Assigned to</th>
         <th class="px-6 py-3 text-left text-sm font-semibold">Categories</th>
         <th class="px-6 py-3 text-left text-sm font-semibold">Labels</th>
         <th class="px-6 py-3 text-left text-sm font-semibold">Priority</th>
@@ -77,20 +75,13 @@ import { route } from 'ziggy-js'
 import MainLayout from '../../Layouts/MainLayout.vue'
 
 const props = defineProps({
-  tickets: { type: Object, required: true }, 
-  filters: { type: Object, default: () => ({}) }, 
-  filterOptions: { type: Object, default: () => ({}) },
+  tickets: { type: Object, default: () => ({ data: [], links: [] })}, 
+  filters: { type: Object, default: () => ({}) },
 })
 
 const showModal = ref(false)
 const modalTitle = ref('')
 
-function applyFilters(newFilters) {
-  router.get(route('tickets.index'), { filters: newFilters }, {
-    preserveState: true,
-    replace: true,
-  })
-}
 const form = reactive({ name: '' })
 let editingId = null
 

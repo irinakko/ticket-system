@@ -29,57 +29,54 @@ class TicketController extends Controller
         $query = Ticket::with(['status', 'priority', 'categories', 'labels', 'user', 'creator'])
             ->visibleTo($user);
 
+        $filterMap = [
+            'status' => ['column' => 'status_id', 'table' => 'tickets'],
+            'priority' => ['column' => 'priority_id', 'table' => 'tickets'],
+            'categories' => ['relation' => 'categories', 'column' => 'id', 'table' => 'categories'],
+            'labels' => ['relation' => 'labels', 'column' => 'id', 'table' => 'labels'],
+            'assigned to' => ['relation' => 'user', 'column' => 'id', 'table' => 'users'],
+            'created by' => ['relation' => 'creator', 'column' => 'id', 'table' => 'users'],
+            'name' => ['column' => 'title', 'table' => 'tickets', 'like' => true],
+        ];
         foreach ($filters as $filter => $values) {
-            if (empty($values)) {
+            if (empty($values) || ! isset($filterMap[$filter])) {
                 continue;
             }
 
-            switch ($filter) {
-                case 'status':
-                    $query->whereIn('status_id', $values);
-                    break;
-                case 'priority':
-                    $query->whereIn('priority_id', $values);
-                    break;
-                case 'categories':
-                    $query->whereHas('categories', fn ($q) => $q->whereIn('categories.id', $values));
-                    break;
-                case 'labels':
-                    $query->whereHas('labels', fn ($q) => $q->whereIn('labels.id', $values));
-                    break;
-                case 'assignee':
-                    $query->whereHas('user', fn ($q) => $q->whereIn('users.id', $values));
-                    break;
-                case 'created_by':
-                    $query->whereHas('creator', fn ($q) => $q->whereIn('users.id', $values));
-                    break;
-                case 'name':
-                    $query->whereLike('title', $values);
-                    break;
+            $map = $filterMap[$filter];
+
+            // Convert objects to IDs
+            $ids = array_map(fn ($v) => is_array($v) && isset($v['id']) ? $v['id'] : $v, $values);
+
+            if (isset($map['relation'])) {
+                $query->whereHas($map['relation'], fn ($q) => $q->whereIn($map['column'], $ids));
+            } elseif (! empty($map['like'])) {
+                $query->where($map['column'], 'like', '%'.$ids[0].'%');
+            } else {
+                $query->whereIn($map['column'], $ids);
             }
         }
 
-        $tickets = $query->paginate(8)->through(fn ($ticket) => [
+        $tickets = $query->get()->map(fn ($ticket) => [
             'id' => $ticket->id,
             'name' => $ticket->title,
-            'status' => $ticket->status->name,
             'priority' => $ticket->priority->name,
             'assigned_to' => $ticket->user ? ['id' => $ticket->user->id, 'name' => $ticket->user->name] : null,
             'created_by' => $ticket->creator ? ['id' => $ticket->creator->id, 'name' => $ticket->creator->name] : null,
             'categories' => $ticket->categories->pluck('name'),
             'labels' => $ticket->labels->pluck('name'),
-            'created_at' => $ticket->created_at->toDateTimeString(),
+            'status' => $ticket->status->name,
         ]);
 
         return Inertia::render('Tickets/Index', [
-            'tickets' => $tickets,
-            'filterOptions' => [
+            'tickets' => ['data' => $tickets],
+            'filters' => [
                 'status' => Status::select('id', 'name')->get(),
                 'priority' => Priority::select('id', 'name')->get(),
                 'categories' => Category::select('id', 'name')->get(),
                 'labels' => Label::select('id', 'name')->get(),
-                'assignee' => User::select('id', 'name')->get(),
-                'created_by' => User::select('id', 'name')->get(),
+                'assigned to' => User::select('id', 'name')->get(),
+                'created by' => User::select('id', 'name')->get(),
                 'name' => Ticket::select('title')->distinct()->pluck('title'),
             ],
             'appliedFilters' => $filters,
