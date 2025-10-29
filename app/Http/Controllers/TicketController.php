@@ -49,11 +49,12 @@ class TicketController extends Controller
             $ids = array_map(fn ($v) => is_array($v) && isset($v['id']) ? $v['id'] : $v, $values);
 
             if (isset($map['relation'])) {
-                $query->whereHas($map['relation'], fn ($q) => $q->whereIn($map['column'], $ids));
+                $query->whereHas($map['relation'], fn ($q) => $q->whereIn($map['table'].'.'.$map['column'], $ids)
+                );
             } elseif (! empty($map['like'])) {
-                $query->where($map['column'], 'like', '%'.$ids[0].'%');
+                $query->where($map['table'].'.'.$map['column'], 'like', '%'.$ids[0].'%');
             } else {
-                $query->whereIn($map['column'], $ids);
+                $query->whereIn($map['table'].'.'.$map['column'], $ids);
             }
         }
 

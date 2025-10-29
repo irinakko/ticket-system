@@ -20,8 +20,7 @@
     <Multiselect
       v-model="selectedFilters[name]"
       :options="options"
-      :option-label="'name'"
-      :option-value="'id'"
+      :value-prop="'id'"
       :track-by="'id'"
       mode="multiple"
       :label="'name'"
@@ -112,7 +111,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import { route } from 'ziggy-js'
 import Multiselect from '@vueform/multiselect'
@@ -123,6 +122,7 @@ const props = defineProps({
   title: { type: String, required: true },
   routeBase: { type: String, required: true },
   filters: Object,     
+  appliedFilters: { type: Object, default: () => ({}) },
   clickableRows: { type: Boolean, default: false },
   showCreate: { type: Boolean, default: true },
   readOnly: { type: Boolean, default: false },
@@ -130,42 +130,44 @@ const props = defineProps({
 
 const selectedFilters = ref({})
 
-onMounted(() => {
+onMounted(async() => {
   console.log('Backend filters:', JSON.parse(JSON.stringify(props.filters)))
+
+ await nextTick()
+
+  const sel = {}
+
   for (const key in props.filters) {
-    const options = props.filters[key] || [];
+    const options = props.filters[key] || []
+    sel[key] = []
 
-    selectedFilters.value[key] = [];
+    const applied = props.appliedFilters?.[key] || []
 
-    if (props.appliedFilters?.[key]?.length) {
-      let applied = props.appliedFilters[key];
+    sel[key] = options.filter(option => {
+      if (!option) return false
 
-      // Convert objects to IDs
-      if (typeof applied[0] === 'object' && applied[0].id !== undefined) {
-        applied = applied.map(a => a.id);
-      }
-
-      if (options.length && typeof options[0] === 'object' && 'id' in options[0]) {
-        selectedFilters.value[key] = options.filter(option => applied.includes(option.id));
+      if (typeof option === 'object') {
+        return applied.some(a => (a.id && a.id === option.id) || (a.name && a.name === option.name))
       } else {
-        selectedFilters.value[key] = options.filter(option => applied.includes(option));
+        return applied.includes(option)
       }
-    }
+    })
   }
 
-  console.log('selectedFilters after onMounted:', JSON.parse(JSON.stringify(selectedFilters.value)));
-});
+  selectedFilters.value = sel
+  console.log('selectedFilters after onMounted:', JSON.parse(JSON.stringify(selectedFilters.value)))
+})
 
 
 const cleanFilters = computed(() => {
-  const filters = {};
+const filters = {};
   for (const [key, value] of Object.entries(selectedFilters.value)) {
     if (!value || value.length === 0) continue;
 
-    if (value.length && typeof value[0] === 'object' && 'id' in value[0]) {
-      filters[key] = value.map(v => v.id).filter(v => v !== undefined && v !== null);
+    if (value.length && typeof value[0] === 'object' && 'name' in value[0]) {
+      filters[key] = value.map(v => v.name);
     } else {
-      filters[key] = value.filter(v => v !== undefined && v !== null);
+      filters[key] = value;
     }
   }
   return filters;
