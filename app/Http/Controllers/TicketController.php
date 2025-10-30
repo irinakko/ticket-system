@@ -44,8 +44,6 @@ class TicketController extends Controller
             }
 
             $map = $filterMap[$filter];
-
-            // Convert objects to IDs
             $ids = array_map(fn ($v) => is_array($v) && isset($v['id']) ? $v['id'] : $v, $values);
 
             if (isset($map['relation'])) {
@@ -86,13 +84,12 @@ class TicketController extends Controller
 
     public function create(Request $request)
     {
-        return view('tickets.create', [
-            'categories' => Category::all(),
-            'priorities' => Priority::all(),
-            'statuses' => Status::all(),
-            'labels' => Label::all(),
-            'users' => User::all(),
-            'attachments' => TicketAttachment::all(),
+        return Inertia::render('Tickets/Create', [
+            'statuses' => Status::all('id', 'name'),
+            'labels' => Label::all('id', 'name'),
+            'categories' => Category::all('id', 'name'),
+            'priorities' => Priority::all('id', 'name'),
+            'users' => User::all('id', 'name'),
         ]);
     }
 

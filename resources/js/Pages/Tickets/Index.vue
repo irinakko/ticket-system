@@ -1,5 +1,11 @@
 <template>
   <MainLayout>
+      <div class="mb-4">
+      <CreateButton 
+        title="tickets"
+        @click="openModal()" 
+      />
+    </div>
     <Table
       title="Tickets"
       routeBase="tickets"
@@ -7,7 +13,7 @@
       :filters="filters"
       @edit="openModal($event)"
       @delete="deleteTicket"
-      @open-create-modal="openModal()">
+      @open-create-modal="goToCreatePage()">
 
     <template #extraHeaders>
         <th class="px-6 py-3 text-left text-sm font-semibold">Created by</th>
@@ -97,6 +103,10 @@ function openModal(item = null) {
     editingId = null
   }
   showModal.value = true
+}
+
+function goToCreatePage() {
+  router.visit(route('tickets.create'))
 }
 
 function submit(data) {

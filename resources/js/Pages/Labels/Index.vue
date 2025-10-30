@@ -88,7 +88,6 @@ function submit(data) {
   }
 }
 const successMessage = ref('')
-
 function deleteLabel(item) {
   if (!confirm(`Are you sure you want to delete "${item.name}"?`)) {
     return
