@@ -78,31 +78,37 @@
                 <slot name="extraColumns" :item="item" />
 
                 <td v-if="!readOnly" class="px-6 py-4 text-right space-x-2">
-                  <button @click="$emit('edit', item)">Edit</button>
-                  <button @click.prevent="$emit('delete', item)" class="text-red-600 hover:text-red-800 font-medium">
+                  <button @click.stop="$emit('edit', item)">Edit</button>
+                  <button @click.stop.prevent="$emit('delete', item)" class="text-red-600 hover:text-red-800 font-medium">
                     Delete
                   </button>
                 </td>
               </tr>
             </tbody>
           </table>
-           <div v-if="items && items.links" class="pagination mt-4 flex gap-2 flex-wrap">
-  <template v-for="link in items.links" :key="link.label">
-    <Link
-      v-if="link.url"
-      :href="link.url"
-      v-html="link.label"
-      preserve-state
-      preserve-scroll
-      class="px-3 py-1 border rounded hover:bg-gray-100"
-    />
-    <span
-      v-else
-      v-html="link.label"
-      class="px-3 py-1 border rounded text-gray-400 cursor-not-allowed"
-    />
-  </template>
-</div>
+        </div>
+
+        <!-- Pagination moved OUTSIDE the table div -->
+        <div v-if="items && items.links" class="pagination mt-4 flex gap-2 flex-wrap">
+          <template v-for="link in items.links" :key="link.label">
+            <Link
+              v-if="link.url"
+              :href="addFiltersToUrl(link.url)"
+              v-html="link.label"
+              preserve-state
+              preserve-scroll
+              class="px-3 py-1 border rounded hover:bg-gray-100 transition"
+              :class="{ 
+                'bg-indigo-500 text-white border-indigo-500': link.active,
+                'hover:bg-indigo-50': !link.active 
+              }"
+            />
+            <span
+              v-else
+              v-html="link.label"
+              class="px-3 py-1 border rounded text-gray-400 cursor-not-allowed"
+            />
+          </template>
         </div>
 
       </div>
@@ -132,6 +138,22 @@ const props = defineProps({
     default: null
   }
 })
+
+function addFiltersToUrl(url) {
+  if (!url) return url
+  
+  const urlObj = new URL(url, window.location.origin)
+  
+  for (const [key, value] of Object.entries(cleanFilters.value)) {
+    if (Array.isArray(value)) {
+      value.forEach(v => urlObj.searchParams.append(`filters[${key}][]`, v))
+    } else {
+      urlObj.searchParams.set(`filters[${key}]`, value)
+    }
+  }
+  
+  return urlObj.toString()
+}
 
 const emit = defineEmits(['edit', 'delete', 'open-create-modal'])
 

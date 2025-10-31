@@ -4,12 +4,14 @@ namespace App\Models;
 
 use App\PriorityLevel;
 use App\Role as RoleEnum;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ticket extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
@@ -38,7 +40,7 @@ class Ticket extends Model
 
     public function status(): BelongsTo
     {
-        return $this->belongsTo(Status::class, 'status_id');
+        return $this->belongsTo(Status::class);
     }
 
     public function categories()
