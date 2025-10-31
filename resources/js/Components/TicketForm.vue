@@ -29,9 +29,9 @@ const form = useForm({
   description: props.ticket.description || '',
   priority: props.ticket.priority?.id || null,
   status:  props.ticket.status?.id || null,
-  users: props.ticket.user?.id || null,
-  categories: props.ticket.categories?.map(c => c.id) || [],
-  labels: props.ticket.labels?.map(l => l.id) || [],
+  assignee_id: props.ticket.user?.id || null,
+  category_ids: props.ticket.categories?.map(c => c.id) || [],
+  label_ids: props.ticket.labels?.map(l => l.id) || [],
 })
 
 const isEditing = !!props.ticket?.id
@@ -98,14 +98,14 @@ function submit() {
       <div class="bg-white rounded-lg shadow p-4">
         <label class="block text-sm font-medium mb-2">Assignee</label>
         <select 
-          v-model="form.assigned_to"
+          v-model="form.assignee_id"
           class="w-full border-gray-300 rounded-md"
         >
           <option v-for="user in users" :key="user.id" :value="user.id">
             {{ user.name }}
           </option>
         </select>
-        <div v-if="form.errors.assigned_to" class="text-red-600 text-sm mt-1">{{ form.errors.assigned_to }}</div>
+        <div v-if="form.errors.assignee_id" class="text-red-600 text-sm mt-1">{{ form.errors.assignee_id }}</div>
       </div>
 
       <!-- Priority -->
@@ -140,7 +140,7 @@ function submit() {
       <div class="bg-white rounded-lg shadow p-4">
         <label class="block text-sm font-medium mb-2">Categories</label>
         <Multiselect
-          v-model="form.categories"
+          v-model="form.category_ids"
           :options="categories"
           :value-prop="'id'"
           :track-by="'id'"

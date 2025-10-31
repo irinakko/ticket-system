@@ -26,7 +26,7 @@ Route::middleware('auth', HandleInertiaRequests::class)->group(function () {
         Route::resource('labels', LabelController::class)->except(['show', 'create', 'edit']);
         Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
-        Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index']);
 
         Route::get('/ticket-logs', [TicketLogsController::class, 'index'])->name('ticket-logs.index');
     });

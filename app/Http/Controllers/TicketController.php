@@ -56,19 +56,19 @@ class TicketController extends Controller
             }
         }
 
-        $tickets = $query->get()->map(fn ($ticket) => [
+        $tickets = $query->paginate(8)->withQueryString()->through(fn ($ticket) => [
             'id' => $ticket->id,
-            'name' => $ticket->title,
-            'priority' => $ticket->priority->name,
-            'assigned_to' => $ticket->user ? ['id' => $ticket->user->id, 'name' => $ticket->user->name] : null,
-            'created_by' => $ticket->creator ? ['id' => $ticket->creator->id, 'name' => $ticket->creator->name] : null,
-            'categories' => $ticket->categories->pluck('name'),
-            'labels' => $ticket->labels->pluck('name'),
-            'status' => $ticket->status->name,
+            'name' => $ticket->title ?? '-',
+            'priority' => $ticket->priority->name ?? '-',
+            'assigned_to' => $ticket->user ? ['id' => $ticket->user->id, 'name' => $ticket->user->name] : ['id' => null, 'name' => '-'],
+            'created_by' => $ticket->creator ? ['id' => $ticket->creator->id, 'name' => $ticket->creator->name] : ['id' => null, 'name' => '-'],
+            'categories' => $ticket->categories->isNotEmpty() ? $ticket->categories->pluck('name') : ['-'],
+            'labels' => $ticket->labels->isNotEmpty() ? $ticket->labels->pluck('name') : ['-'],
+            'status' => $ticket->status->name ?? '-',
         ]);
 
         return Inertia::render('Tickets/Index', [
-            'tickets' => ['data' => $tickets],
+            'tickets' => $tickets,
             'filters' => [
                 'status' => Status::select('id', 'name')->get(),
                 'priority' => Priority::select('id', 'name')->get(),
@@ -97,7 +97,10 @@ class TicketController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = $data['assignee_id'];
-        unset($data['assignee_id']);
+        $data['priority_id'] = $data['priority'];
+        $data['status_id'] = $data['status'];
+        $data['user_id'] = $data['assignee_id'];
+        unset($data['priority'], $data['status'], $data['assignee_id']);
         $ticket = Ticket::create($data);
 
         $ticket->categories()->sync($request->input('category_ids', []));
