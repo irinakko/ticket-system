@@ -89,11 +89,12 @@ function submit(data) {
 }
 const successMessage = ref('')
 function deleteLabel(item) {
+  console.log('Delete label item:', item);
   if (!confirm(`Are you sure you want to delete "${item.name}"?`)) {
     return
   }
 
-  router.delete(route('labels.destroy', item.id), {
+  router.delete(route('labels.destroy', { label: item.id }), {
     onSuccess: () => {
       successMessage.value = 'Deleted successfully!'
       setTimeout(() => {
