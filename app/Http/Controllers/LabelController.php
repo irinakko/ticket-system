@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Aggregates\LabelAggregate;
 use App\Models\Label;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,7 @@ class LabelController extends Controller
         }
 
         $labels = $query->get()->map(fn ($label) => [
+            'id' => $label->id,
             'name' => $label->name,
         ]);
 
@@ -43,23 +45,38 @@ class LabelController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        Label::create($validated);
+        $labelId = Label::max('id') + 1;
+
+        LabelAggregate::retrieve($labelId)
+            ->createLabel($labelId, $request->user()->id, $validated)
+            ->persist();
 
         return redirect()->route('labels.index');
     }
 
     public function update(Request $request, Label $label)
     {
-        $label->update([
-            'name' => $request->input('name'),
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
         ]);
+
+        $oldAttributes = ['name' => $label->name];
+        $newAttributes = $validated;
+
+        LabelAggregate::retrieve($label->id)
+            ->updateLabel($label->id, $oldAttributes, $newAttributes)
+            ->persist();
 
         return redirect()->route('labels.index');
     }
 
     public function destroy(Label $label)
     {
-        $label->delete();
+        $attributes = ['name' => $label->name];
+
+        LabelAggregate::retrieve($label->id)
+            ->deleteLabel($label->id, $attributes)
+            ->persist();
 
         return redirect()->route('labels.index');
     }
