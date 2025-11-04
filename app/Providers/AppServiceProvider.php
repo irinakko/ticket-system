@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Projectors\CategoryProjector;
 use App\Projectors\LabelProjector;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
@@ -15,5 +16,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Inertia::setRootView('app');
         $this->app->make(Projectionist::class)->addProjector(LabelProjector::class);
+        $this->app->make(Projectionist::class)->addProjector(CategoryProjector::class);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Aggregates\CategoryAggregate;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,15 +22,16 @@ class CategoryController extends Controller
             $query->whereIn('name', $filters['name']);
         }
 
-        $categories = $query->get()->map(fn ($category) => [
-            'name' => $category->name,
+        $labels = $query->get()->map(fn ($label) => [
+            'id' => $label->id,
+            'name' => $label->name,
         ]);
 
         $names = Category::select('name')->distinct()->pluck('name');
 
         return Inertia::render('Categories/Index', [
             'categories' => [
-                'data' => $categories,
+                'data' => $labels,
             ],
             'filters' => [
                 'name' => $names,
@@ -43,23 +45,38 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        Category::create($validated);
+        $categoryId = Category::max('id') + 1;
+
+        CategoryAggregate::retrieve($categoryId)
+            ->createCategory($categoryId, $request->user()->id, $validated)
+            ->persist();
 
         return redirect()->route('categories.index');
     }
 
     public function update(Request $request, Category $category)
     {
-        $category->update([
-            'name' => $request->input('name'),
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
         ]);
 
-        return redirect()->route('categories.index');
+        $oldAttributes = ['name' => $category->name];
+        $newAttributes = $validated;
+
+        CategoryAggregate::retrieve($category->id)
+            ->updateCategory($category->id, $oldAttributes, $newAttributes)
+            ->persist();
+
+        return redirect()->route('labels.index');
     }
 
     public function destroy(Category $category)
     {
-        $category->delete();
+        $attributes = ['name' => $category->name];
+
+        CategoryAggregate::retrieve($category->id)
+            ->deleteCategory($category->id, $attributes)
+            ->persist();
 
         return redirect()->route('categories.index');
     }
