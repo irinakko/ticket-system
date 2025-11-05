@@ -7,8 +7,8 @@ const props = defineProps({
   ticket: {
     type: Object,
     default: () => ({
-      name: '',
-      assigned_to: null,
+      title: '',
+      user: null,
       description: '',
       priority: null,
       status: null,
@@ -23,13 +23,21 @@ const props = defineProps({
   users: Array,
 })
 
+console.log('Form props:', {
+  statuses: props.statuses,
+  priorities: props.priorities,
+  users: props.users,
+  categories: props.categories,
+  labels: props.labels
+})
+
 
 const form = useForm({
-  name: props.ticket.name || '',
+  title: props.ticket.title || '',
   description: props.ticket.description || '',
-  priority: props.ticket.priority?.id || null,
-  status:  props.ticket.status?.id || null,
-  assignee_id: props.ticket.user?.id || null,
+  priority_id: props.ticket.priority?.id || null,
+  status_id: props.ticket.status?.id || null,
+  user_id: props.ticket.user?.id || null,
   category_ids: props.ticket.categories?.map(c => c.id) || [],
   label_ids: props.ticket.labels?.map(l => l.id) || [],
 })
@@ -53,12 +61,12 @@ function submit() {
         <div class="mb-4">
           <label class="block text-sm font-medium mb-1">Title</label>
           <input 
-            v-model="form.name" 
+            v-model="form.title" 
             type="text" 
             class="w-full border-gray-300 rounded-md" 
             required 
           />
-          <div v-if="form.errors.name" class="text-red-600 text-sm mt-1">{{ form.errors.name }}</div>
+          <div v-if="form.errors.title" class="text-red-600 text-sm mt-1">{{ form.errors.title }}</div>
         </div>
 
         <div class="mb-4">
@@ -98,42 +106,42 @@ function submit() {
       <div class="bg-white rounded-lg shadow p-4">
         <label class="block text-sm font-medium mb-2">Assignee</label>
         <select 
-          v-model="form.assignee_id"
+          v-model="form.user_id"
           class="w-full border-gray-300 rounded-md"
         >
           <option v-for="user in users" :key="user.id" :value="user.id">
             {{ user.name }}
           </option>
         </select>
-        <div v-if="form.errors.assignee_id" class="text-red-600 text-sm mt-1">{{ form.errors.assignee_id }}</div>
+        <div v-if="form.errors.user_id" class="text-red-600 text-sm mt-1">{{ form.errors.user_id }}</div>
       </div>
 
       <!-- Priority -->
       <div class="bg-white rounded-lg shadow p-4">
         <label class="block text-sm font-medium mb-2">Priority</label>
         <select 
-          v-model="form.priority"
+          v-model="form.priority_id"
           class="w-full border-gray-300 rounded-md"
         >
           <option v-for="priority in priorities" :key="priority" :value="priority.id">
             {{ priority.name}}
           </option>
         </select>
-        <div v-if="form.errors.priority" class="text-red-600 text-sm mt-1">{{ form.errors.priority }}</div>
+        <div v-if="form.errors.priority_id" class="text-red-600 text-sm mt-1">{{ form.errors.priority_id }}</div>
       </div>
 
       <!-- Status -->
       <div class="bg-white rounded-lg shadow p-4">
         <label class="block text-sm font-medium mb-2">Status</label>
         <select 
-          v-model="form.status"
+          v-model="form.status_id"
           class="w-full border-gray-300 rounded-md"
         >
           <option v-for="status in statuses" :key="status" :value="status.id">
             {{ status.name}}
           </option>
         </select>
-        <div v-if="form.errors.status" class="text-red-600 text-sm mt-1">{{ form.errors.status }}</div>
+        <div v-if="form.errors.status_id" class="text-red-600 text-sm mt-1">{{ form.errors.status_id }}</div>
       </div>
 
       <!-- Categories -->

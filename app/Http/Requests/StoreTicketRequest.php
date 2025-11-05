@@ -19,11 +19,11 @@ class StoreTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
             'priority_id' => 'required|exists:priorities,id',
             'status_id' => 'required|exists:statuses,id',
-            'assignee_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id',
             'category_ids' => 'nullable|array',
             'category_ids.*' => 'exists:categories,id',
             'label_ids' => 'nullable|array',
