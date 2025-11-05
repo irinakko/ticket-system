@@ -85,22 +85,20 @@ class TicketController extends Controller
     public function create(Request $request)
     {
         return Inertia::render('Tickets/Create', [
-            'statuses' => Status::all('id', 'name'),
-            'labels' => Label::all('id', 'name'),
-            'categories' => Category::all('id', 'name'),
-            'priorities' => Priority::all('id', 'name'),
-            'users' => User::all('id', 'name'),
+            'users' => User::select('id', 'name')->get(),
+            'statuses' => Status::select('id', 'name')->get(),
+            'priorities' => Priority::select('id', 'name')->get(),
+            'categories' => Category::select('id', 'name')->get(),
+            'labels' => Label::select('id', 'name')->get(),
         ]);
     }
 
     public function store(StoreTicketRequest $request)
     {
         $data = $request->validated();
-        $data['user_id'] = $data['assignee_id'];
-        $data['priority_id'] = $data['priority'];
-        $data['status_id'] = $data['status'];
-        $data['user_id'] = $data['assignee_id'];
-        unset($data['priority'], $data['status'], $data['assignee_id']);
+
+        $data['created_by'] = Auth::id();
+
         $ticket = Ticket::create($data);
 
         $ticket->categories()->sync($request->input('category_ids', []));
@@ -109,17 +107,13 @@ class TicketController extends Controller
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 $path = $file->store('attachments', 'public');
-
-                $ticket->attachments()->create([
-                    'file_path' => $path,
-                ]);
+                $ticket->attachments()->create(['file_path' => $path]);
             }
-
         }
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
 
+        $user = Auth::user();
         $details = $this->getTicketDetails($ticket);
+
         TicketAggregate::retrieve($ticket->id)
             ->createTicket($ticket->id, $user->id, $details)
             ->persist();

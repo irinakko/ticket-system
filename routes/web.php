@@ -24,7 +24,6 @@ Route::middleware('auth', HandleInertiaRequests::class)->group(function () {
     Route::middleware([HasRole::class.':admin'], HandleInertiaRequests::class)->group(function () {
         Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit']);
         Route::resource('labels', LabelController::class);
-        Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/dashboard', [DashboardController::class, 'index']);
 
@@ -33,7 +32,6 @@ Route::middleware('auth', HandleInertiaRequests::class)->group(function () {
 
     Route::middleware([HasRole::class.':admin,user,agent'], HandleInertiaRequests::class)->group(function () {
         Route::resource('tickets', TicketController::class);
-        Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
         Route::resource('comments', CommentController::class);
         Route::post('/comments/{comment}/respond', [CommentController::class, 'respond'])->name('comments.respond');
 
